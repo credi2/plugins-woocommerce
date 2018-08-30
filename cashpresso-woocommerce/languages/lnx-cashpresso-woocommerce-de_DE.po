@@ -1,0 +1,228 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2018-06-27 11:53+0200\n"
+"PO-Revision-Date: 2018-06-27 11:53+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: de_DE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.0.8\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-KeywordsList: __\n"
+"X-Poedit-SearchPath-0: lnx-cashpresso-woocommerce-gateway.php\n"
+
+#: lnx-cashpresso-woocommerce-gateway.php:50
+msgid "Einstellungen"
+msgstr "Einstellungen"
+
+#: lnx-cashpresso-woocommerce-gateway.php:90
+msgid "cashpresso Ratenkauf"
+msgstr "cashpresso Ratenkauf"
+
+#: lnx-cashpresso-woocommerce-gateway.php:91
+#: lnx-cashpresso-woocommerce-gateway.php:265
+msgid ""
+"cashpresso ermöglicht dir Einkäufe in Raten zu bezahlen. Deine Ratenhöhe "
+"kannst du dir beim Kauf aussuchen und später jederzeit ändern."
+msgstr ""
+"cashpresso ermöglicht dir Einkäufe in Raten zu bezahlen. Deine Ratenhöhe "
+"kannst du dir beim Kauf aussuchen und später jederzeit ändern."
+
+#: lnx-cashpresso-woocommerce-gateway.php:141
+#, php-format
+msgid ""
+"<strong>%s</strong> wurde deaktiviert, da WooCommerce nicht EUR als Währung "
+"eingestellt hat. Bitte stellen Sie EUR als Währung ein und aktivieren Sie "
+"die Zahlungsmethode anschlie&szlig;end <a href=\"%s\">hier wieder.</a>"
+msgstr ""
+"<strong>%s</strong> wurde deaktiviert, da WooCommerce nicht EUR als Währung "
+"eingestellt hat. Bitte stellen Sie EUR als Währung ein und aktivieren Sie "
+"die Zahlungsmethode anschlie&szlig;end <a href=\"%s\">hier wieder.</a>"
+
+#: lnx-cashpresso-woocommerce-gateway.php:141
+#: lnx-cashpresso-woocommerce-gateway.php:153
+msgid "<div class=\"error\"><p>"
+msgstr "<div class=\"error\"><p>"
+
+#: lnx-cashpresso-woocommerce-gateway.php:153
+#, php-format
+msgid ""
+"<strong>%s</strong> wurde deaktiviert, da WooCommerce kein SSL Zertifikat "
+"auf der Bezahlseite verlangt. Bitte erwerben und installieren Sie ein "
+"gültiges SSL Zertifikat  und richten Sie es <a href=\"%s\">es hier ein.</a>"
+msgstr ""
+"<strong>%s</strong> wurde deaktiviert, da WooCommerce kein SSL Zertifikat "
+"auf der Bezahlseite verlangt. Bitte erwerben und installieren Sie ein "
+"gültiges SSL Zertifikat  und richten Sie es <a href=\"%s\">es hier ein.</a>"
+
+#: lnx-cashpresso-woocommerce-gateway.php:249
+msgid "Aktiviert/Deaktiviert"
+msgstr "Aktiviert/Deaktiviert"
+
+#: lnx-cashpresso-woocommerce-gateway.php:251
+msgid "Aktiviere Cashpresso Zahlung"
+msgstr "Aktiviere Cashpresso Zahlung"
+
+#: lnx-cashpresso-woocommerce-gateway.php:255
+msgid "Titel"
+msgstr "Titel"
+
+#: lnx-cashpresso-woocommerce-gateway.php:257
+msgid "Namen der im Shop angezeigt wird"
+msgstr "Namen der im Shop angezeigt wird"
+
+#: lnx-cashpresso-woocommerce-gateway.php:258
+msgid "Ratenkauf"
+msgstr "Ratenkauf"
+
+#: lnx-cashpresso-woocommerce-gateway.php:262
+msgid "Beschreibung"
+msgstr "Beschreibung"
+
+#: lnx-cashpresso-woocommerce-gateway.php:264
+msgid "Beschreibung der Zahlungsart"
+msgstr "Beschreibung der Zahlungsart"
+
+#: lnx-cashpresso-woocommerce-gateway.php:269
+msgid "Weitere Schritte"
+msgstr "Weitere Schritte"
+
+#: lnx-cashpresso-woocommerce-gateway.php:271
+msgid "Weitere Schritte für die Danke Seite bzw. E-Mails"
+msgstr "Weitere Schritte für die Danke Seite bzw. E-Mails"
+
+#: lnx-cashpresso-woocommerce-gateway.php:272
+msgid ""
+"Schließe deine Bestellung ab indem du deinen Einkauf mit cashpresso "
+"bezahlst. Durch Klick auf „Jetzt bezahlen“ öffnet sich ein Fenster und du "
+"kannst den Ratenkauf mit cashpresso abschließen. "
+msgstr ""
+"Schließe deine Bestellung ab indem du deinen Einkauf mit cashpresso "
+"bezahlst. Durch Klick auf „Jetzt bezahlen“ öffnet sich ein Fenster und du "
+"kannst den Ratenkauf mit cashpresso abschließen. "
+
+#: lnx-cashpresso-woocommerce-gateway.php:301
+#: lnx-cashpresso-woocommerce-gateway.php:303
+msgid "LIVE SecretKey"
+msgstr "LIVE SecretKey"
+
+#: lnx-cashpresso-woocommerce-gateway.php:308
+#: lnx-cashpresso-woocommerce-gateway.php:310
+msgid "LIVE PartnerApiKey"
+msgstr "LIVE PartnerApiKey"
+
+#: lnx-cashpresso-woocommerce-gateway.php:324
+msgid "LIVE Modus aktivieren?"
+msgstr "LIVE Modus aktivieren?"
+
+#: lnx-cashpresso-woocommerce-gateway.php:326
+msgid "Soll der Live Modus aktiv geschalten werden?"
+msgstr "Soll der Live Modus aktiv geschalten werden?"
+
+#: lnx-cashpresso-woocommerce-gateway.php:331
+msgid "Direct checkout"
+msgstr "Direct checkout"
+
+#: lnx-cashpresso-woocommerce-gateway.php:333
+msgid "Aktiviere direct checkout?"
+msgstr "Aktiviere direct checkout?"
+
+#: lnx-cashpresso-woocommerce-gateway.php:347
+msgid "Gültigkeitsdauer"
+msgstr "Gültigkeitsdauer"
+
+#: lnx-cashpresso-woocommerce-gateway.php:349
+msgid ""
+"Wie lange kann der Käufer den Prozess bei Cashpresso abschließen. Sie müssen "
+"solange die Ware vorhalten. (Angabe in Stunden)."
+msgstr ""
+"Wie lange kann der Käufer den Prozess bei Cashpresso abschließen. Sie müssen "
+"solange die Ware vorhalten. (Angabe in Stunden)."
+
+#: lnx-cashpresso-woocommerce-gateway.php:354
+msgid "Cashpresso auf Produktebene"
+msgstr "Cashpresso auf Produktebene"
+
+#: lnx-cashpresso-woocommerce-gateway.php:356
+msgid "deaktivieren"
+msgstr "deaktivieren"
+
+#: lnx-cashpresso-woocommerce-gateway.php:356
+msgid "dynamisch"
+msgstr "dynamisch"
+
+#: lnx-cashpresso-woocommerce-gateway.php:356
+msgid "statisch"
+msgstr "statisch"
+
+#: lnx-cashpresso-woocommerce-gateway.php:357
+msgid "Soll die Option der Ratenzahlung auf Produktebene angezeigt werden?"
+msgstr "Soll die Option der Ratenzahlung auf Produktebene angezeigt werden?"
+
+#: lnx-cashpresso-woocommerce-gateway.php:362
+msgid "Mindestpreis pro Produkt"
+msgstr "Mindestpreis pro Produkt"
+
+#: lnx-cashpresso-woocommerce-gateway.php:364
+msgid "Ab welchem Preis wird die Ratenzahlung direkt beim Produkt angezeigt."
+msgstr "Ab welchem Preis wird die Ratenzahlung direkt beim Produkt angezeigt."
+
+#: lnx-cashpresso-woocommerce-gateway.php:369
+msgid "Maximalpreis pro Produkt"
+msgstr "Maximalpreis pro Produkt"
+
+#: lnx-cashpresso-woocommerce-gateway.php:371
+msgid "Bis zu welchem Preis wird die Ratenzahlung angezeigt."
+msgstr "Bis zu welchem Preis wird die Ratenzahlung angezeigt."
+
+#: lnx-cashpresso-woocommerce-gateway.php:385
+msgid "Hervorheben"
+msgstr "Hervorheben"
+
+#: lnx-cashpresso-woocommerce-gateway.php:387
+msgid "Schrift vergrößern"
+msgstr "Schrift vergrößern"
+
+#: lnx-cashpresso-woocommerce-gateway.php:395
+msgid "zinsfreie Tage"
+msgstr "zinsfreie Tage"
+
+#: lnx-cashpresso-woocommerce-gateway.php:397
+msgid ""
+"Zinsfreie Tage. Nur möglich wenn das Feature für diesen Account von "
+"cashpresso freigegeben wurde."
+msgstr ""
+"Zinsfreie Tage. Nur möglich wenn das Feature für diesen Account von "
+"cashpresso freigegeben wurde."
+
+#: lnx-cashpresso-woocommerce-gateway.php:454
+msgid "Kunde muss sich noch verifizieren."
+msgstr "Kunde muss sich noch verifizieren."
+
+#: lnx-cashpresso-woocommerce-gateway.php:692
+msgid "<p>Herzlichen Dank! Ihre Bezahlung wurde soeben freigegeben.</p>"
+msgstr "<p>Herzlichen Dank! Ihre Bezahlung wurde soeben freigegeben.</p>"
+
+#: lnx-cashpresso-woocommerce-gateway.php:776
+msgid "ab"
+msgstr "ab"
+
+#: lnx-cashpresso-woocommerce-gateway.php:776
+msgid "Monat"
+msgstr "Monat"
+
+#~ msgid "24"
+#~ msgstr "24"
+
+#~ msgid "25"
+#~ msgstr "25"
+
+#~ msgid "de"
+#~ msgstr "de"
+
+#~ msgid "0"
+#~ msgstr "0"
