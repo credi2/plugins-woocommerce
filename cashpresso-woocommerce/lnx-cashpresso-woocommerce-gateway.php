@@ -819,9 +819,11 @@ return $str;
 }
  */
 
-function product_level_integration($price) {
+function product_level_integration($price, $product = null) {
 
-	$product = wc_get_product();
+	if (empty($product)) {
+		$product = wc_get_product();
+	}
 
 	$pricevalue = wc_get_price_including_tax($product);
 
@@ -895,7 +897,7 @@ function getStaticRate($price, $paybackRate, $minPaybackAmount) {
 	return min(floatval($price), max(floatval($minPaybackAmount), floatval($price * 0.01 * $paybackRate)));
 }
 
-add_filter('woocommerce_get_price_html', 'product_level_integration');
+add_filter('woocommerce_get_price_html', 'product_level_integration', 10, 2);
 
 function wc_cashpresso_label_js() {
 
