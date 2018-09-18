@@ -15,10 +15,6 @@
  */
 defined('ABSPATH') or exit;
 
-if (false && !in_array($_SERVER["REMOTE_ADDR"], array("212.241.126.109", "212.186.68.179", "213.240.115.62", "35.157.69.65", "35.157.63.173", "35.156.113.120", "35.157.90.220", "178.165.130.181"))) {
-	return;
-}
-
 // Make sure WooCommerce is active
 if (!in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
 	return;
@@ -647,7 +643,7 @@ function wc_cashpresso_gateway_init() {
 				$targetAccountId = "";
 			}
 
-			$key = $secretKey . ";" . intval(intval($amount * 10) * 10) . ";" . $interestFreeDaysMerchant . ";" . $bankUsage . ";" . $targetAccountId;
+			$key = $secretKey . ";" . intval($amount * 100) . ";" . $interestFreeDaysMerchant . ";" . $bankUsage . ";" . $targetAccountId;
 
 			//file_put_contents("/var/www/cashpresso/www/logging", $key . "\n\n", FILE_APPEND);
 			//file_put_contents("/var/www/cashpresso/www/logging", hash("sha512", $key) . "\n\n", FILE_APPEND);
