@@ -529,7 +529,12 @@ function wc_cashpresso_gateway_init() {
 		public function process_payment($order_id) {
 			//file_put_contents("/var/www/cashpresso/www/logging", "START" . "\n\n", FILE_APPEND);
 
-			$order = wc_get_order($order_id);
+      if ( empty( $_POST['cashpressoToken'] )) {
+        wc_add_notice( 'Bitte wähle deine Rate aus.', 'error' );
+        return;
+      }
+
+      $order = wc_get_order($order_id);
 
 			$purchaseId = $this->sendBuyRequest($order);
 
