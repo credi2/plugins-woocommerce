@@ -530,7 +530,7 @@ function wc_cashpresso_gateway_init() {
 			//file_put_contents("/var/www/cashpresso/www/logging", "START" . "\n\n", FILE_APPEND);
 
       if ( empty( $_POST['cashpressoToken'] )) {
-        wc_add_notice( 'Bitte wähle deine Rate aus.', 'error' );
+        wc_add_notice( __('Bitte wähle deine Rate aus.', 'lnx-cashpresso-woocommerce'), 'error' );
         return;
       }
 

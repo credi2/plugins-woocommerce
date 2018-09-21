@@ -203,6 +203,10 @@ msgstr ""
 msgid "Kunde muss sich noch verifizieren."
 msgstr "Kunde muss sich noch verifizieren."
 
+#: lnx-cashpresso-woocommerce-gateway.php:538
+msgid "Bitte wähle deine Rate aus."
+msgstr "Bitte wähle deine Rate bei cashpresso aus."
+
 #: lnx-cashpresso-woocommerce-gateway.php:692
 msgid "<p>Herzlichen Dank! Ihre Bezahlung wurde soeben freigegeben.</p>"
 msgstr "<p>Herzlichen Dank! Ihre Bezahlung wurde soeben freigegeben.</p>"
