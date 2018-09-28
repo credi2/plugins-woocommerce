@@ -575,7 +575,7 @@ function wc_cashpresso_gateway_init() {
 			$parameters["validUntil"] = date('c', mktime() + $this->validUntil * 3600);
 			$parameters["bankUsage"] = "Order-" . $order->get_id();
 			$parameters["interestFreeDaysMerchant"] = $this->getInterestFreeDaysMerchant();
-			$parameters["callbackUrl"] = get_site_url() . "?wc-api=wc_gateway_cashpresso";
+			$parameters["callbackUrl"] = trailingslashit(get_site_url()) . "?wc-api=wc_gateway_cashpresso";
 
 			$parameters["language"] = $this->getCurrentLanguage();
 
