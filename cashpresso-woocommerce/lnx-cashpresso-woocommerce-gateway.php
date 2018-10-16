@@ -584,7 +584,7 @@ function wc_cashpresso_gateway_init() {
     public function wc_cashpresso_checkout_js() {
       global $woocommerce;
 
-      if (is_checkout() && !is_wc_endpoint_url('order-pay') && !is_wc_endpoint_url('order-received') && !is_wc_endpoint_url('view-order')) {
+      if (is_checkout() && !is_wc_endpoint_url('order-received') && !is_wc_endpoint_url('view-order')) {
 
         echo '<script id="c2CheckoutScript" type="text/javascript"
 		      src="https://my.cashpresso.com/ecommerce/v2/checkout/c2_ecom_checkout.all.min.js"
@@ -601,7 +601,7 @@ function wc_cashpresso_gateway_init() {
     public function wc_cashpresso_refresh_js() {
       global $woocommerce;
 
-      if (is_checkout() && !is_wc_endpoint_url('order-pay') && !is_wc_endpoint_url('order-received') && !is_wc_endpoint_url('view-order')) {
+      if (is_checkout() && !is_wc_endpoint_url('order-received') && !is_wc_endpoint_url('view-order')) {
 
         echo "<script>
 
