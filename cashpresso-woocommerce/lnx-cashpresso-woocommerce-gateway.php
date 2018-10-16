@@ -110,10 +110,10 @@ function wc_cashpresso_gateway_init() {
 
       add_action('woocommerce_api_wc_gateway_cashpresso', array($this, 'processCallback'));
 
-      add_action('wp_head', array($this, 'wc_cashpresso_js'));
-      add_action('wp_footer', array($this, 'wc_cashpresso_js_footer'));
+      add_action('wp_head', array($this, 'wc_cashpresso_checkout_js'));
+      add_action('wp_footer', array($this, 'wc_cashpresso_refresh_js'));
 
-      add_filter('woocommerce_thankyou_order_received_text', array($this, 'wc_cashpresso_thankyoutext'), 10, 2);
+      add_filter('woocommerce_thankyou_order_received_text', array($this, 'wc_cashpresso_postcheckout_js'), 10, 2);
 
       add_filter('woocommerce_gateway_title', array($this, 'wc_cashpresso_add_banner'));
 
@@ -521,7 +521,7 @@ function wc_cashpresso_gateway_init() {
       }
     }
 
-    public function wasRequestSuccess($data, $compareHash = false) {
+    public function wasRequestSuccess($data) {
       if (isset($data["body"])) {
         $obj = json_decode($data["body"]);
         if (is_object($obj)) {
@@ -581,7 +581,7 @@ function wc_cashpresso_gateway_init() {
       return hash("sha512", $key);
     }
 
-    public function wc_cashpresso_js() {
+    public function wc_cashpresso_checkout_js() {
       global $woocommerce;
 
       if (is_checkout() && !is_wc_endpoint_url('order-pay') && !is_wc_endpoint_url('order-received') && !is_wc_endpoint_url('view-order')) {
@@ -598,7 +598,7 @@ function wc_cashpresso_gateway_init() {
       }
     }
 
-    public function wc_cashpresso_js_footer() {
+    public function wc_cashpresso_refresh_js() {
       global $woocommerce;
 
       if (is_checkout() && !is_wc_endpoint_url('order-pay') && !is_wc_endpoint_url('order-received') && !is_wc_endpoint_url('view-order')) {
@@ -654,25 +654,7 @@ if (window.C2EcomCheckout) {
       }
     }
 
-    public function wc_cashpresso_wizard($order) {
-      global $woocommerce;
-
-      if ($order->get_payment_method() == "cashpresso" && $order->get_status() == "pending") {
-
-        $purchaseId = $order->get_meta("purchaseId");
-
-        echo '<script id="c2PostCheckoutScript" type="text/javascript"
-		    src="https://my.cashpresso.com/ecommerce/v2/checkout/c2_ecom_post_checkout.all.min.js"
-		    defer
-		    data-c2-partnerApiKey="' . $this->getApiKey() . '"
-		    data-c2-purchaseId="' . $purchaseId . '"
-		    data-c2-mode="' . $this->getMode() . '"
-		    data-c2-locale="' . $this->getCurrentLanguage() . '">
-		  </script>';
-      }
-    }
-
-    public function wc_cashpresso_thankyoutext($str, $order) {
+    public function wc_cashpresso_postcheckout_js($str, $order) {
       global $woocommerce;
       if ($order->get_payment_method() == "cashpresso" && $order->get_status() == "pending") {
 
@@ -789,15 +771,14 @@ add_filter('woocommerce_get_price_html', 'product_level_integration', 10, 2);
 
 function wc_cashpresso_label_js() {
 
-  if (is_checkout() || is_view_order_page()) {
+  $settings = get_option('woocommerce_cashpresso_settings');
+
+  if (is_checkout() || is_view_order_page() || $settings["productLabelLocation"] == "0" || $settings["productLevel"] == "0") {
     return;
   }
 
   $product = wc_get_product();
-
-  $settings = get_option('woocommerce_cashpresso_settings');
   $modus = "test";
-
   $locale = "en";
   if (get_bloginfo("language") == "de-DE") {
     $locale = "de";
@@ -823,21 +804,25 @@ if( jQuery("div.quantity > input").val() > 1 ){
 	console.log( jQuery("div.quantity > input").val() );
 	function c2Checkout( e ){
 
-if( window.location.href  == "' . wc_get_checkout_url() . '" ){ console.log("c2Checkout request on rate change terminated."); } else {  window.location.href= checkoutUrl;} } </script>';
+if( window.location.href  == "' . wc_get_checkout_url() . '" ) { 
+  console.log("c2Checkout request on rate change terminated."); 
+} else {  
+  window.location.href= checkoutUrl;} 
+	} </script>';
 
-  echo '<script id="c2LabelScript" type="text/javascript"
+  if ($settings["productLevel"] == "1") {
+    echo '<script id="c2LabelScript" type="text/javascript"
 src="https://my.cashpresso.com/ecommerce/v2/label/c2_ecom_wizard.all.min.js"
 defer
 data-c2-partnerApiKey="' . $apiKey . '"
 data-c2-interestFreeDaysMerchant="' . $interestFreeDaysMerchant . '"
 data-c2-mode="' . $modus . '"
 data-c2-locale="' . $locale . '"';
-  if ($settings['direct_checkout'] == 'yes') {
-
-    echo ' data-c2-checkoutCallback="true" ';
+    if ($settings['direct_checkout'] == 'yes') {
+      echo ' data-c2-checkoutCallback="true" ';
+    }
+    echo '></script>';
   }
-  echo '></script>';
-
   if ($settings["productLevel"] == "2") {
     echo '<script id="c2StaticLabelScript" type="text/javascript"
 		    src="https://my.cashpresso.com/ecommerce/v2/label/c2_ecom_wizard_static.all.min.js"
