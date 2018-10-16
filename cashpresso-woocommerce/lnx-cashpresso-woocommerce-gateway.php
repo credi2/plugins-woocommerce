@@ -73,7 +73,6 @@ function wc_cashpresso_gateway_init() {
 			$this->amount = $amount;
 
 			$this->id = "cashpresso";
-			//$this->icon = plugins_url("lnx-cashpresso-woocommerce/assets/rsz_icon.png");
 			$this->has_fields = false;
 			$this->method_title = __("cashpresso Ratenkauf", "lnx-cashpresso-woocommerce");
 			$this->method_description = __("cashpresso ermöglicht dir Einkäufe in Raten zu bezahlen. Deine Ratenhöhe kannst du dir beim Kauf aussuchen und später jederzeit ändern.", "lnx-cashpresso-woocommerce");
@@ -102,7 +101,6 @@ function wc_cashpresso_gateway_init() {
 
 			$this->instructions = $this->get_option('instructions');
 
-			//$this->locale = $this->get_option('locale');
 
 			$this->minPaybackAmount = $this->get_option('minPaybackAmount');
 			$this->limitTotal = $this->get_option('limitTotal');
@@ -115,7 +113,6 @@ function wc_cashpresso_gateway_init() {
 			add_action('wp_head', array($this, 'wc_cashpresso_js'));
 			add_action('wp_footer', array($this, 'wc_cashpresso_js_footer'));
 
-			//add_action('woocommerce_order_details_before_order_table', array($this, 'wc_cashpresso_wizard'));
 			add_filter('woocommerce_thankyou_order_received_text', array($this, 'wc_cashpresso_thankyoutext'), 10, 2);
 
 			add_filter('woocommerce_gateway_title', array($this, 'wc_cashpresso_add_banner'));
@@ -203,16 +200,11 @@ function wc_cashpresso_gateway_init() {
 
 			$data = json_decode($json);
 
-			//file_put_contents("/var/www/cashpresso/www/logging", $json . "\n\n", FILE_APPEND);
 
 			if ($this->generateReceivingVerificationHash($this->getSecretKey(), $data->status, $data->referenceId, $data->usage) == $data->verificationHash) {
-				//file_put_contents("/var/www/cashpresso/www/logging", $data->usage . "\n\n", FILE_APPEND);
 				$order_id = intval(substr($data->usage, 6));
 
 				$order = wc_get_order($order_id);
-
-				//file_put_contents("/var/www/cashpresso/www/logging", $order_id . "\n\n", FILE_APPEND);
-				//file_put_contents("/var/www/cashpresso/www/logging", $data->status . "\n\n", FILE_APPEND);
 
 				switch ($data->status) {
 				case "SUCCESS":
@@ -344,31 +336,6 @@ function wc_cashpresso_gateway_init() {
 					'default' => __('Schließe deine Bestellung ab indem du deinen Einkauf mit cashpresso bezahlst. Durch Klick auf „Jetzt bezahlen“ öffnet sich ein Fenster und du kannst den Ratenkauf mit cashpresso abschließen. ', 'lnx-cashpresso-woocommerce'),
 					'desc_tip' => true,
 				),
-				/*
-					                  'test_secretkey' => array(
-					                  'title' => __('TEST SecretKey', 'lnx-cashpresso-woocommerce'),
-					                  'type' => 'text',
-					                  'description' => __('TEST SecretKey', 'lnx-cashpresso-woocommerce'),
-					                  'default' => __('', 'lnx-cashpresso-woocommerce'),
-					                  'desc_tip' => true,
-					                  ),
-					                  'test_apikey' => array(
-					                  'title' => __('TEST PartnerApiKey', 'lnx-cashpresso-woocommerce'),
-					                  'type' => 'text',
-					                  'description' => __('TEST PartnerApiKey', 'lnx-cashpresso-woocommerce'),
-					                  'default' => __('', 'lnx-cashpresso-woocommerce'),
-					                  'desc_tip' => true,
-					                  ),
-				*/
-				/*
-					                  'test_url' => array(
-					                  'title' => __('TEST URL', 'lnx-cashpresso-woocommerce'),
-					                  'type' => 'text',
-					                  'description' => __('TEST URL', 'lnx-cashpresso-woocommerce'),
-					                  'default' => __('https://test.cashpresso.com/rest', 'lnx-cashpresso-woocommerce'),
-					                  'desc_tip' => true,
-					                  ),
-				*/
 				'live_secretkey' => array(
 					'title' => __('Secret Key', 'lnx-cashpresso-woocommerce'),
 					'type' => 'text',
@@ -383,15 +350,6 @@ function wc_cashpresso_gateway_init() {
 					'default' => __('', 'lnx-cashpresso-woocommerce'),
 					'desc_tip' => true,
 				),
-				/*
-					                  'live_url' => array(
-					                  'title' => __('LIVE URL', 'lnx-cashpresso-woocommerce'),
-					                  'type' => 'text',
-					                  'description' => __('LIVE URL', 'lnx-cashpresso-woocommerce'),
-					                  'default' => __('https://backend.cashpresso.com/rest', 'lnx-cashpresso-woocommerce'),
-					                  'desc_tip' => true,
-					                  ),
-				*/
 				'live_modus' => array(
 					'title' => __(__('Modus'), 'lnx-cashpresso-woocommerce'),
 					'type' => 'select',
@@ -407,15 +365,6 @@ function wc_cashpresso_gateway_init() {
 					'default' => __('', 'lnx-cashpresso-woocommerce'),
 					'desc_tip' => true,
 				),
-				/*
-					                  'bankUsage' => array(
-					                  'title' => __('Verwendungszweck', 'lnx-cashpresso-woocommerce'),
-					                  'type' => 'text',
-					                  'description' => __('Scheint auf der Überweisung auf.', 'lnx-cashpresso-woocommerce'),
-					                  'default' => __('', 'lnx-cashpresso-woocommerce'),
-					                  'desc_tip' => true,
-					                  ),
-				*/
 				'validUntil' => array(
 					'title' => __('Gültigkeitsdauer', 'lnx-cashpresso-woocommerce'),
 					'type' => 'number',
@@ -440,31 +389,6 @@ function wc_cashpresso_gateway_init() {
 					'default' => __('', 'lnx-cashpresso-woocommerce'),
 					'desc_tip' => true,
 				),
-				/*
-					'minPaybackAmount' => array(
-						'title' => __('Mindestpreis pro Produkt', 'lnx-cashpresso-woocommerce'),
-						'type' => 'number',
-						'description' => __('Ab welchem Preis wird die Ratenzahlung direkt beim Produkt angezeigt.', 'lnx-cashpresso-woocommerce'),
-						'default' => '25',
-						'desc_tip' => true,
-					),
-					'limitTotal' => array(
-						'title' => __('Maximalpreis pro Produkt', 'lnx-cashpresso-woocommerce'),
-						'type' => 'number',
-						'description' => __('Bis zu welchem Preis wird die Ratenzahlung angezeigt.', 'lnx-cashpresso-woocommerce'),
-						'default' => '25',
-						'desc_tip' => true,
-					),
-				*/
-				/*
-					                  'paybackRate' => array(
-					                  'title' => __('Rückzahlrate', 'lnx-cashpresso-woocommerce'),
-					                  'type' => 'number',
-					                  'description' => __('aktuelle Rückzahlrate', 'lnx-cashpresso-woocommerce'),
-					                  'default' => __('25', 'lnx-cashpresso-woocommerce'),
-					                  'desc_tip' => true,
-					                  ),
-				*/
 				'boost' => array(
 					'title' => __('Hervorheben', 'lnx-cashpresso-woocommerce'),
 					'type' => 'select',
@@ -514,9 +438,9 @@ function wc_cashpresso_gateway_init() {
 
 		public function getUrl() {
 			if ($this->isLive()) {
-				return "https://backend.cashpresso.com/rest"; // $this->live_url;
+				return "https://backend.cashpresso.com/rest";
 			}
-			return "https://test.cashpresso.com/rest"; //$this->test_url;
+			return "https://test.cashpresso.com/rest";
 		}
 
 		public function getInterestFreeDaysMerchant() {
@@ -527,8 +451,6 @@ function wc_cashpresso_gateway_init() {
 		}
 
 		public function process_payment($order_id) {
-			//file_put_contents("/var/www/cashpresso/www/logging", "START" . "\n\n", FILE_APPEND);
-
       if ( empty( $_POST['cashpressoToken'] )) {
         wc_add_notice( __('Bitte wähle deine Rate aus.', 'lnx-cashpresso-woocommerce'), 'error' );
         return;
@@ -538,8 +460,6 @@ function wc_cashpresso_gateway_init() {
 
 			$purchaseId = $this->sendBuyRequest($order);
 
-			//file_put_contents("/var/www/cashpresso/www/logging", $purchaseId . "\n\n", FILE_APPEND);
-			// Mark as on-hold (we're awaiting the payment)
 			$order->update_status('pending', __('Kunde muss sich noch verifizieren.', 'lnx-cashpresso-woocommerce'));
 
 			// Reduce stock levels
@@ -548,7 +468,6 @@ function wc_cashpresso_gateway_init() {
 			// Remove cart
 			WC()->cart->empty_cart();
 
-			// Return thankyou redirect
 			return array(
 				'result' => 'success',
 				'redirect' => $this->get_return_url($order),
@@ -567,7 +486,6 @@ function wc_cashpresso_gateway_init() {
 		public function sendBuyRequest($order) {
 
 			$parameters = [];
-//$order->get_total()
 			$parameters["partnerApiKey"] = $this->getApiKey();
 			$parameters["c2EcomId"] = $_POST["cashpressoToken"];
 			$parameters["amount"] = floatval($order->calculate_totals());
@@ -581,33 +499,21 @@ function wc_cashpresso_gateway_init() {
 
 			$url = $this->getUrl() . "/backend/ecommerce/v2/buy";
 
-			//file_put_contents("/var/www/cashpresso/www/loggingnow", serialize($parameters) . "\n\n", FILE_APPEND);
-
 			$data = wp_remote_post($url, array(
 				'headers' => array('Content-Type' => 'application/json; charset=utf-8'),
 				'body' => json_encode($parameters),
 				'method' => 'POST',
 			));
 
-			//file_put_contents("/var/www/cashpresso/www/logging", serialize($data) . "\n\n", FILE_APPEND);
-
 			if ($this->wasRequestSuccess($data)) {
-
-				//file_put_contents("/var/www/cashpresso/www/logging", "SUCCESS" . "\n\n", FILE_APPEND);
-
 				$obj = json_decode($data["body"]);
 				$purchaseId = $obj->purchaseId;
 
 				$order->add_meta_data("purchaseId", $purchaseId);
 				$order->save_meta_data();
 
-				//session_start();
-				//$_SESSION["purchaseId"] = $purchaseId;
-
 				return $purchaseId;
 			} else {
-
-				//file_put_contents("/var/www/cashpresso/www/logging", "NO SUCCESS" . "\n\n", FILE_APPEND);
 				$obj = json_decode($data["body"]);
 				wc_add_notice($obj->error->description, 'error');
 
@@ -649,9 +555,6 @@ function wc_cashpresso_gateway_init() {
 			}
 
 			$key = $secretKey . ";" . intval($amount * 100) . ";" . $interestFreeDaysMerchant . ";" . $bankUsage . ";" . $targetAccountId;
-
-			//file_put_contents("/var/www/cashpresso/www/logging", $key . "\n\n", FILE_APPEND);
-			//file_put_contents("/var/www/cashpresso/www/logging", hash("sha512", $key) . "\n\n", FILE_APPEND);
 
 			return hash("sha512", $key);
 		}
@@ -804,21 +707,6 @@ if (window.C2EcomCheckout) {
 }
 
 add_action('plugins_loaded', 'wc_cashpresso_gateway_init', 11);
-/*
-function sanitizePrice($price) {
-$stripped = strip_tags(removeTag($price, "del"));
-
-var_dump( $stripped );
-var_dump( preg_replace("/&#?[a-z0-9]+;/i", "", $stripped) );
-
-return preg_replace("/&#?[a-z0-9]+;/i", "", $stripped);
-}
-
-function removeTag($str, $tag) {
-$str = preg_replace("#\<" . $tag . "(.*)/" . $tag . ">#iUs", "", $str);
-return $str;
-}
- */
 
 function product_level_integration($price, $product = null) {
 
@@ -887,7 +775,6 @@ function product_level_integration($price, $product = null) {
 			$minPaybackAmount = $settings['minPaybackAmount'];
 
 			$vat = ' <div class="' . $class . '"><a href="#" style="font-size:' . $size . '" onclick="setCheckoutUrl(\'' . wc_get_checkout_url() . '?add-to-cart=' . $product->id . '\');C2EcomWizard.startOverlayWizard(' . number_format($pricevalue, 2, ".", "") . ')"> ' . __("ab", "lnx-cashpresso-woocommerce") . ' ' . number_format(getStaticRate($pricevalue, $paybackRate, $minPaybackAmount), 2) . ' € / ' . __("Monat", "lnx-cashpresso-woocommerce") . '</a></div>';
-			//$vat = ' <div class="c2-financing-label ' . $class . '" data-c2-financing-amount="' . sanitizePrice($price) . '" style="font-size:' . $size . '"></div>';
 		}
 	}
 
@@ -945,7 +832,7 @@ data-c2-partnerApiKey="' . $apiKey . '"
 data-c2-interestFreeDaysMerchant="' . $interestFreeDaysMerchant . '"
 data-c2-mode="' . $modus . '"
 data-c2-locale="' . $locale . '"';
-	if ( /*is_product() && method_exists($product, "is_type") && $product->is_type('simple')) && */$settings['direct_checkout'] == 'yes') {
+	if ($settings['direct_checkout'] == 'yes') {
 
 		echo ' data-c2-checkoutCallback="true" ';
 	}
@@ -959,7 +846,7 @@ data-c2-locale="' . $locale . '"';
 		    data-c2-interestFreeDaysMerchant="' . $interestFreeDaysMerchant . '"
 		    data-c2-mode="' . $modus . '"
 			data-c2-locale="' . $locale . '"';
-		if ( /* is_product() && $product->is_type('simple') && */$settings['direct_checkout'] == 'yes') {
+		if ($settings['direct_checkout'] == 'yes') {
 			echo ' data-c2-checkoutCallback="true" ';
 		}
 		echo '</script>';
