@@ -584,6 +584,17 @@ function wc_cashpresso_gateway_init() {
     public function wc_cashpresso_checkout_js() {
       global $woocommerce;
 
+      $amount = $this->amount;
+
+      if (is_checkout() && is_wc_endpoint_url('order-pay')) {
+        if (isset($_GET['key'])) {
+          $order_key = $_GET['key'];
+          $order_id = wc_get_order_id_by_order_key($order_key);
+          $order = new WC_Order( $order_id );
+          $amount = $order->get_total();
+        }
+      }
+
       if (is_checkout() && !is_wc_endpoint_url('order-received') && !is_wc_endpoint_url('view-order')) {
 
         echo '<script id="c2CheckoutScript" type="text/javascript"
@@ -592,7 +603,7 @@ function wc_cashpresso_gateway_init() {
 		        data-c2-interestFreeDaysMerchant="' . $this->getInterestFreeDaysMerchant() . '"
 		        data-c2-mode="' . $this->getMode() . '"
 		        data-c2-locale="' . $this->getCurrentLanguage() . '"
-		        data-c2-amount="' . $this->amount . '">
+		        data-c2-amount="' . $amount . '">
 		    </script>
 		    ';
       }
