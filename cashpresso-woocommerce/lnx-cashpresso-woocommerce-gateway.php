@@ -63,11 +63,9 @@ function wc_cashpresso_gateway_init() {
     public function __construct() {
 
       if (!WC()->cart->prices_include_tax) {
-
-        $amount = (float)WC()->cart->cart_contents_total + (float)WC()->cart->tax_total + (float)WC()->cart->shipping_total + (float)WC()->cart->shipping_tax_total;
+        $amount = (float)WC()->cart->total;
       } else {
-
-        $amount = (float)WC()->cart->cart_contents_total + (float)WC()->cart->shipping_total;
+        $amount = (float)WC()->cart->total;
       }
 
       $this->amount = $amount;
