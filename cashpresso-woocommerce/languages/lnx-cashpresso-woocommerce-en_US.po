@@ -29,8 +29,12 @@ msgid ""
 "cashpresso ermöglicht dir Einkäufe in Raten zu bezahlen. Deine Ratenhöhe "
 "kannst du dir beim Kauf aussuchen und später jederzeit ändern."
 msgstr ""
-"with cashpresso you pay for purchases in instalments. You can choose your "
+"With cashpresso you pay for purchases in instalments. You can choose your "
 "instalment amount when buying and change it anytime after."
+
+#: lnx-cashpresso-woocommerce-gateway.php:70
+msgid "cashpresso ermöglicht es Ihren Kunden den Einkauf in Raten zu bezahlen."
+msgstr "cashpresso allows your customers to pay their purchases in instalments."
 
 #: lnx-cashpresso-woocommerce-gateway.php:140
 msgid "<strong>ApiKey</strong> invalid. Not updated."
@@ -81,11 +85,11 @@ msgstr ""
 
 #: lnx-cashpresso-woocommerce-gateway.php:325
 msgid "Aktiviert/Deaktiviert"
-msgstr "Activated/Deactivated"
+msgstr "Enabled/Disabled"
 
 #: lnx-cashpresso-woocommerce-gateway.php:327
-msgid "Aktiviere Cashpresso Zahlung"
-msgstr "Activate Cashpresso Payment"
+msgid "Aktiviere cashpresso Zahlung"
+msgstr "Enable cashpresso Payment"
 
 #: lnx-cashpresso-woocommerce-gateway.php:331
 msgid "Titel"
@@ -116,14 +120,9 @@ msgid "Weitere Schritte für die Danke Seite bzw. E-Mails"
 msgstr "Further steps for the \"Thank You\" page"
 
 #: lnx-cashpresso-woocommerce-gateway.php:348
-msgid ""
-"Schließe deine Bestellung ab indem du deinen Einkauf mit cashpresso "
-"bezahlst. Durch Klick auf „Jetzt bezahlen“ öffnet sich ein Fenster und du "
-"kannst den Ratenkauf mit cashpresso abschließen. "
-msgstr ""
-"Complete your order by paying for your purchase with cashpresso. By clicking "
-"on \"Pay Now\" a window opens and you can complete your purchase with "
-"cashpresso."
+msgid "post-checkout-instructions"
+msgstr "Complete your order by paying for your purchase with cashpresso. By clicking on \"Pay "
+"Now\" a window opens and you can complete your purchase with cashpresso."
 
 #: lnx-cashpresso-woocommerce-gateway.php:377
 #: lnx-cashpresso-woocommerce-gateway.php:379
@@ -149,8 +148,12 @@ msgid "test"
 msgstr "test"
 
 #: lnx-cashpresso-woocommerce-gateway.php:403
-msgid "Soll der Live Modus aktiv geschalten werden?"
-msgstr "Should the Live Modus be activated?"
+msgid "Die beiden Modi können nur mit den entsprechenden Zugangsdaten verwendet werden. "
+"Haben Sie z.B. Live-Zugangsdaten, so können Sie nur den Live-Modus verwenden. "
+"Um Sandboxing im Live-Modus zu de/aktivieren, wenden Sie sich bitte an cashpresso."
+msgstr "For both modes you need the respective API credentials. "
+"With live credentials e.g., you can only use live modus. "
+"To enable Sandboxing in live modus, please contact cashpresso."
 
 #: lnx-cashpresso-woocommerce-gateway.php:408
 msgid "Direct checkout"
@@ -170,15 +173,15 @@ msgstr "Period of validity"
 
 #: lnx-cashpresso-woocommerce-gateway.php:426
 msgid ""
-"Wie lange kann der Käufer den Prozess bei Cashpresso abschließen. Sie müssen "
+"Wie lange kann der Käufer den Prozess bei cashpresso abschließen. Sie müssen "
 "solange die Ware vorhalten. (Angabe in Stunden)."
 msgstr ""
 "How long may it take the customer to finish the process with cashpresso? (in "
 "hours)"
 
 #: lnx-cashpresso-woocommerce-gateway.php:431
-msgid "Cashpresso auf Produktebene"
-msgstr "Cashpresso on productlevel"
+msgid "cashpresso auf Produktebene"
+msgstr "cashpresso on productlevel"
 
 #: lnx-cashpresso-woocommerce-gateway.php:433
 msgid "deaktivieren"
@@ -225,8 +228,8 @@ msgid "Schrift vergrößern"
 msgstr "Increase font size"
 
 #: lnx-cashpresso-woocommerce-gateway.php:483
-msgid "zinsfreie Tage"
-msgstr "interest-free days"
+msgid "Zinsfreie Tage"
+msgstr "Interest-free days"
 
 #: lnx-cashpresso-woocommerce-gateway.php:485
 msgid ""
