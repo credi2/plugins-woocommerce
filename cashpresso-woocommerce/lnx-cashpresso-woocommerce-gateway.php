@@ -4,7 +4,7 @@
  * Plugin Name: WooCommerce Cashpresso Payment Gateway
  * Plugin URI: https://www.lintranex.com
  * Description: A payment gateway for cashpresso (https://www.cashpresso.com/).
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Lintranex Systems
  * Author URI: https://www.lintranex.com
  * Copyright: © 2017 Lintranex Systems.
@@ -63,6 +63,18 @@ function wc_cashpresso_gateway_init() {
     public function __construct() {
 
       $this->amount = (float)WC()->cart->total;
+
+      echo '<script>
+      try {
+        if (jQuery) {
+          jQuery(document).ready(function () {
+            if (window.C2EcomCheckout) {
+              window.C2EcomCheckout.refresh('. (float)WC()->cart->total . ');
+            }
+          })
+        }
+      } catch (error) {
+      };</script>';
 
       $this->id = "cashpresso";
       $this->has_fields = false;
@@ -625,12 +637,6 @@ function wc_cashpresso_gateway_init() {
      "phone": jQuery("#billing_phone").val()
    });
 }
-
-if (window.C2EcomCheckout) {
-      window.C2EcomCheckout.refresh();
-    }
-
-
 });</script>';
       }
     }
