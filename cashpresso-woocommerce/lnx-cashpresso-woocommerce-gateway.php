@@ -1,10 +1,9 @@
 <?php
-
 /**
  * Plugin Name: WooCommerce Cashpresso Payment Gateway
  * Plugin URI: https://www.lintranex.com
  * Description: A payment gateway for cashpresso (https://www.cashpresso.com/).
- * Version: 1.0.1
+ * Version: 1.0.2
  * Author: Lintranex Systems
  * Author URI: https://www.lintranex.com
  * Copyright: © 2017 Lintranex Systems.
@@ -64,24 +63,12 @@ function wc_cashpresso_gateway_init() {
 
       $this->amount = (float)WC()->cart->total;
 
-      echo '<script>
-      try {
-        if (jQuery) {
-          jQuery(document).ready(function () {
-            if (window.C2EcomCheckout) {
-              window.C2EcomCheckout.refresh('. (float)WC()->cart->total . ');
-            }
-          })
-        }
-      } catch (error) {
-      };</script>';
-
       $this->id = "cashpresso";
       $this->has_fields = false;
       $this->method_title = __("cashpresso Ratenkauf", "lnx-cashpresso-woocommerce");
       $this->method_description = __("cashpresso ermöglicht es Ihren Kunden den Einkauf in Raten zu bezahlen.", "lnx-cashpresso-woocommerce");
 
-      $this->title = $this->get_option('title') . ' <div id="cashpresso-availability-banner"></div>';
+      $this->title = $this->get_option('title') . ' <div id="cashpresso-availability-banner"></div><input type="hidden" id="wc_cashpresso_refresh_amount" value="'.$this->amount.'"/>';
       $this->description = __($this->get_option('description'), 'lnx-cashpresso-woocommerce') . '<p>&nbsp;</p><input type="hidden" id="cashpressoToken" name="cashpressoToken"><div id="cashpresso-checkout"></div><script type="text/javascript"> //document.addEventListener("DOMContentLoaded", function(event) { if (window.C2EcomCheckout) { window.C2EcomCheckout.refresh( ); } //});</script>';
 
       $this->secretkey = $this->get_option('secretkey');
@@ -625,7 +612,7 @@ function wc_cashpresso_gateway_init() {
 		    ";
         echo '<script>jQuery( document.body ).on( "updated_checkout", function( e ){
 
-				if( window.location.href  == "' . wc_get_checkout_url() . '" ){
+				if(C2EcomCheckout &&  window.location.href  == "' . wc_get_checkout_url() . '" ){
 	C2EcomCheckout.refreshOptionalData({
      "email": jQuery("#billing_email").val(),
      "given": jQuery("#billing_first_name").val(),
@@ -636,6 +623,7 @@ function wc_cashpresso_gateway_init() {
      "addressline": jQuery("#billing_address_1").val() + " " + jQuery("#billing_address_2").val(),
      "phone": jQuery("#billing_phone").val()
    });
+	 C2EcomCheckout.refresh(jQuery("#wc_cashpresso_refresh_amount").val());
 }
 });</script>';
       }
