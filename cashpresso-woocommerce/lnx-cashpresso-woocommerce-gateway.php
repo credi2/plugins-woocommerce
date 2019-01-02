@@ -807,7 +807,7 @@ data-c2-locale="' . $locale . '"';
     if ($settings['direct_checkout'] == 'yes') {
       echo ' data-c2-checkoutCallback="true" ';
     }
-    echo '</script>';
+    echo '></script>';
   }
 
   echo '<script>jQuery(document).ready(function() {
