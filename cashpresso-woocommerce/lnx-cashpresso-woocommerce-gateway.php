@@ -60,14 +60,12 @@ function wc_cashpresso_gateway_init() {
     protected $amount;
 
     public function __construct() {
-
-      $this->amount = (float)WC()->cart->total;
-
       $this->id = "cashpresso";
       $this->has_fields = false;
       $this->method_title = __("cashpresso Ratenkauf", "lnx-cashpresso-woocommerce");
       $this->method_description = __("cashpresso ermöglicht es Ihren Kunden den Einkauf in Raten zu bezahlen.", "lnx-cashpresso-woocommerce");
 
+      $this->amount = is_admin() ? 0.0 : (float)WC()->cart->total;
       $this->title = $this->get_option('title') . ' <div id="cashpresso-availability-banner"></div><input type="hidden" id="wc_cashpresso_refresh_amount" value="'.$this->amount.'"/>';
       $this->description = __($this->get_option('description'), 'lnx-cashpresso-woocommerce') . '<p>&nbsp;</p><input type="hidden" id="cashpressoToken" name="cashpressoToken"><div id="cashpresso-checkout"></div><script type="text/javascript"> //document.addEventListener("DOMContentLoaded", function(event) { if (window.C2EcomCheckout) { window.C2EcomCheckout.refresh( ); } //});</script>';
 
@@ -654,7 +652,8 @@ function wc_cashpresso_gateway_init() {
       if (is_admin()) {
         return str_replace('<div id="cashpresso-availability-banner"></div>', '', $str);
       } else {
-        return $str;
+        $this->amount = (float)WC()->cart->total;
+        return preg_replace('/value="\d+"/i', 'value="' . $this->amount . '"', $str);
       }
     }
 
@@ -706,7 +705,7 @@ function product_level_integration($price, $product = null) {
         $size = "1.2em;";
         $class = "cashpresso_bigger";
       }
-      $vat = ' <div id="dynamic' . rand() . '" class="c2-financing-label ' . $class . '" data-c2-financing-amount="' . number_format($pricevalue, 2, ".", "") . '" style="font-size:' . $size . '" onclick="setCheckoutUrl(\'' . wc_get_checkout_url() . '?add-to-cart=' . $product->id . '\');"><a href"#" ></a></div>';
+      $vat = ' <div id="dynamic' . rand() . '" class="c2-financing-label ' . $class . '" data-c2-financing-amount="' . number_format($pricevalue, 2, ".", "") . '" style="font-size:' . $size . '" onclick="setCheckoutUrl(\'' . wc_get_checkout_url() . '?add-to-cart=' . $product->get_id() . '\');"><a href"#" ></a></div>';
     }
   }
 
@@ -731,7 +730,7 @@ function product_level_integration($price, $product = null) {
       $paybackRate = $settings['paybackRate'];
       $minPaybackAmount = $settings['minPaybackAmount'];
 
-      $vat = ' <div class="' . $class . '"><a href="#" style="font-size:' . $size . '" onclick="setCheckoutUrl(\'' . wc_get_checkout_url() . '?add-to-cart=' . $product->id . '\');C2EcomWizard.startOverlayWizard(' . number_format($pricevalue, 2, ".", "") . ')"> ' . __("ab", "lnx-cashpresso-woocommerce") . ' ' . number_format(getStaticRate($pricevalue, $paybackRate, $minPaybackAmount), 2) . ' € / ' . __("Monat", "lnx-cashpresso-woocommerce") . '</a></div>';
+      $vat = ' <div class="' . $class . '"><a href="#" style="font-size:' . $size . '" onclick="setCheckoutUrl(\'' . wc_get_checkout_url() . '?add-to-cart=' . $product->get_id() . '\');C2EcomWizard.startOverlayWizard(' . number_format($pricevalue, 2, ".", "") . ')"> ' . __("ab", "lnx-cashpresso-woocommerce") . ' ' . number_format(getStaticRate($pricevalue, $paybackRate, $minPaybackAmount), 2) . ' € / ' . __("Monat", "lnx-cashpresso-woocommerce") . '</a></div>';
     }
   }
 
@@ -748,11 +747,16 @@ function wc_cashpresso_label_js() {
 
   $settings = get_option('woocommerce_cashpresso_settings');
 
-  if (is_checkout() || is_view_order_page() || $settings["productLabelLocation"] == "0" || $settings["productLevel"] == "0") {
+  if (is_cart() || is_checkout() || is_view_order_page() || $settings["productLabelLocation"] == "0" || $settings["productLevel"] == "0") {
     return;
   }
 
   $product = wc_get_product();
+
+  if (!$product) {
+    return;
+  }
+
   $locale = "en";
   if (get_bloginfo("language") == "de-DE") {
     $locale = "de";
@@ -767,7 +771,7 @@ function wc_cashpresso_label_js() {
   }
 
   echo '<script>
-var checkoutUrl = "' . wc_get_checkout_url() . '?add-to-cart=' . $product->id . '";
+var checkoutUrl = "' . wc_get_checkout_url() . '?add-to-cart=' . $product->get_id() . '";
 
 function setCheckoutUrl( url ){
 	checkoutUrl = url;
