@@ -753,10 +753,6 @@ function wc_cashpresso_label_js() {
 
   $product = wc_get_product();
 
-  if (!$product) {
-    return;
-  }
-
   $locale = "en";
   if (get_bloginfo("language") == "de-DE") {
     $locale = "de";
@@ -771,7 +767,7 @@ function wc_cashpresso_label_js() {
   }
 
   echo '<script>
-var checkoutUrl = "' . wc_get_checkout_url() . '?add-to-cart=' . $product->get_id() . '";
+var checkoutUrl = "' . wc_get_checkout_url() . '?add-to-cart=' . $product->id . '";
 
 function setCheckoutUrl( url ){
 	checkoutUrl = url;
