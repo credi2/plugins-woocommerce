@@ -521,7 +521,7 @@ function wc_cashpresso_gateway_init() {
         $targetAccountId = "";
       }
 
-      $key = $secretKey . ";" . intval($amount * 100) . ";" . $interestFreeDaysMerchant . ";" . $bankUsage . ";" . $targetAccountId;
+      $key = $secretKey . ";" . intval(round($amount * 100, 0), 10) . ";" . $interestFreeDaysMerchant . ";" . $bankUsage . ";" . $targetAccountId;
 
       return hash("sha512", $key);
     }
