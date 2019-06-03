@@ -1,12 +1,12 @@
 <?php
 /**
- * Plugin Name: WooCommerce Cashpresso Payment Gateway
- * Plugin URI: https://www.lintranex.com
- * Description: A payment gateway for cashpresso (https://www.cashpresso.com/).
- * Version: 1.0.3
- * Author: Lintranex Systems
- * Author URI: https://www.lintranex.com
- * Copyright: © 2017 Lintranex Systems.
+ * Plugin Name: WooCommerce cashpresso Payment Gateway
+ * Plugin URI: https://www.cashpresso.com/de/i/business
+ * Description: A payment gateway for cashpresso instalment payments.
+ * Version: 1.0.5
+ * Author: Credi2 GmbH | cashpresso
+ * Author URI: https://www.cashpresso.com/de/i/business
+ * Copyright: © 2017 Credi2 GmbH.
  * License: GNU General Public License v3.0
  * License URI: http://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain: lnx-cashpresso-woocommerce
@@ -562,17 +562,19 @@ function wc_cashpresso_gateway_init() {
         }
       }
 
+
+
       if (is_checkout() && !is_wc_endpoint_url('order-received') && !is_wc_endpoint_url('view-order')) {
 
-        echo '<script id="c2CheckoutScript" type="text/javascript"
+        echo '
+        <script id="c2CheckoutScript" type="text/javascript"
 		      src="https://my.cashpresso.com/ecommerce/v2/checkout/c2_ecom_checkout.all.min.js"
 		        data-c2-partnerApiKey="' . $this->getApiKey() . '"
 		        data-c2-interestFreeDaysMerchant="' . $this->getInterestFreeDaysMerchant() . '"
 		        data-c2-mode="' . $this->getMode() . '"
 		        data-c2-locale="' . $this->getCurrentLanguage() . '"
 		        data-c2-amount="' . $amount . '">
-		    </script>
-		    ';
+		    </script>';
       }
     }
 
@@ -621,7 +623,11 @@ function wc_cashpresso_gateway_init() {
      "addressline": jQuery("#billing_address_1").val() + " " + jQuery("#billing_address_2").val(),
      "phone": jQuery("#billing_phone").val()
    });
-	 C2EcomCheckout.refresh(jQuery("#wc_cashpresso_refresh_amount").val());
+	let refreshAmount = jQuery("#wc_cashpresso_refresh_amount").val();
+	if (!isNaN(refreshAmount)) {
+	  refreshAmount = parseFloat(refreshAmount);
+	}
+	 C2EcomCheckout.refresh(refreshAmount);
 }
 });</script>';
       }
