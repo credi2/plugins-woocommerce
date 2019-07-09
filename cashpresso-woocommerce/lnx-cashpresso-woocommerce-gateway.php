@@ -270,17 +270,24 @@ function wc_cashpresso_gateway_init() {
         ));
 
         if ($this->wasRequestSuccess($data)) {
-
+          
           $obj = json_decode($data["body"], true);
 
           $this->settings["minPaybackAmount"] = $obj["minPaybackAmount"];
           $this->settings["interestFreeEnabled"] = $obj["interestFreeEnabled"];
           $this->settings["limitTotal"] = $obj["limit"]["total"];
           $this->settings["paybackRate"] = $obj["paybackRate"];
-          $this->settings["interestFreeMaxDuration"] = $obj["interestFreeMaxDuration"];
+          $this->settings["interestFreeMaxDuration"] = $obj["interestFreeMaxDuration"];       
 
           $this->settings["partnerInfo"] = $data["body"];
           $this->settings["partnerInfoTimestamp"] = strftime("%Y-%m-%d %H:%M:%S");
+
+          if ($obj["interestFreeEnabled"] && isset($this->settings["interestFreeMaxDuration"]) &&
+            $this->getInterestFreeDaysMerchant() > intval($this->settings["interestFreeMaxDuration"])) {
+            $this->settings["interestFreeDaysMerchant"] = $obj["interestFreeMaxDuration"];
+          } elseif (!$obj["interestFreeEnabled"]) {
+            $this->settings["interestFreeDaysMerchant"] = 0;
+          }   
 
           update_option($this->get_option_key(), apply_filters('woocommerce_settings_api_sanitized_fields_' . $this->id, $this->settings));
         }
