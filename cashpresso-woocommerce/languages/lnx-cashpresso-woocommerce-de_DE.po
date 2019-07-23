@@ -222,14 +222,8 @@ msgstr "ab"
 msgid "Monat"
 msgstr "Monat"
 
-#~ msgid "24"
-#~ msgstr "24"
+msgid "cashpresso Ratenkauf: Ein Fehler ist aufgetreten, bitte wende dich an <a href=\"mailto:support@cashpresso.com\">support@cashpresso.com</a>"
+msgstr "cashpresso Financing: An error occurred, please get in touch with us at <a href=\"mailto:support@cashpresso.com\">support@cashpresso.com</a>"
 
-#~ msgid "25"
-#~ msgstr "25"
-
-#~ msgid "de"
-#~ msgstr "de"
-
-#~ msgid "0"
-#~ msgstr "0"
+msgid "cashpresso Ratenkauf: Du hast bereits einen cashpresso Account. Bitte klicke auf Raten ändern und log dich erneut mit deiner E-Mail Adresse an."
+msgstr "cashpresso Financing: You already have an account. Please click on 'Choose instalments', sign out and sign in again with your email address."

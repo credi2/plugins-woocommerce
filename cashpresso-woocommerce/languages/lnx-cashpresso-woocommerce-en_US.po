@@ -259,24 +259,8 @@ msgstr "from"
 msgid "Monat"
 msgstr "month"
 
-#~ msgid "LIVE PartnerApiKey"
-#~ msgstr "LIVE PartnerApiKey"
+msgid "cashpresso Ratenkauf: Ein Fehler ist aufgetreten, bitte wende dich an <a href=\"mailto:support@cashpresso.com\">support@cashpresso.com</a>"
+msgstr "cashpresso Financing: An error occurred, please get in touch with us at <a href=\"mailto:support@cashpresso.com\">support@cashpresso.com</a>"
 
-#~ msgid "LIVE Modus aktivieren?"
-#~ msgstr "Activate LIVE Modus?"
-
-#~ msgid "Aktiviere direct checkout?"
-#~ msgstr "Activate Direct checkout?"
-
-#~ msgid "Mindestpreis pro Produkt"
-#~ msgstr "Minimum price per product"
-
-#~ msgid ""
-#~ "Ab welchem Preis wird die Ratenzahlung direkt beim Produkt angezeigt."
-#~ msgstr "From which value will financing be shown on product level."
-
-#~ msgid "Maximalpreis pro Produkt"
-#~ msgstr "Maximum price per product"
-
-#~ msgid "Bis zu welchem Preis wird die Ratenzahlung angezeigt."
-#~ msgstr "To which value will financing be shown on product level."
+msgid "cashpresso Ratenkauf: Du hast bereits einen cashpresso Account. Bitte klicke auf Raten ändern und log dich erneut mit deiner E-Mail Adresse an."
+msgstr "cashpresso Financing: You already have an account. Please click on 'Choose instalments', sign out and sign in again with your email address."

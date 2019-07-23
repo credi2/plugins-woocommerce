@@ -22,9 +22,9 @@ if (!in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get
 /**
  * Add the gateway to WC Available Gateways
  *
- * @since 1.0.0
  * @param array $gateways all available WC gateways
  * @return array $gateways all WC gateways + cashpresso gateway
+ * @since 1.0.0
  */
 function wc_cashpresso_add_to_gateways($gateways) {
   $gateways[] = 'WC_Gateway_Cashpresso';
@@ -36,13 +36,13 @@ add_filter('woocommerce_payment_gateways', 'wc_cashpresso_add_to_gateways');
 /**
  * Adds plugin page links
  *
- * @since 1.0.0
  * @param array $links all plugin links
  * @return array $links all plugin links + our custom links (i.e., "Settings")
+ * @since 1.0.0
  */
 function wc_cashpresso_gateway_plugin_links($links) {
   $plugin_links = array(
-      '<a href="' . admin_url('admin.php?page=wc-settings&tab=checkout&section=cashpresso') . '">' . __('Einstellungen', 'lnx-cashpresso-woocommerce') . '</a>',
+    '<a href="' . admin_url('admin.php?page=wc-settings&tab=checkout&section=cashpresso') . '">' . __('Einstellungen', 'lnx-cashpresso-woocommerce') . '</a>',
   );
   return array_merge($plugin_links, $links);
 }
@@ -66,7 +66,7 @@ function wc_cashpresso_gateway_init() {
       $this->method_description = __("cashpresso ermöglicht es Ihren Kunden den Einkauf in Raten zu bezahlen.", "lnx-cashpresso-woocommerce");
 
       $this->amount = is_admin() ? 0.0 : (float)WC()->cart->total;
-      $this->title = $this->get_option('title') . ' <div id="cashpresso-availability-banner"></div><input type="hidden" id="wc_cashpresso_refresh_amount" value="'.$this->amount.'"/>';
+      $this->title = $this->get_option('title') . ' <div id="cashpresso-availability-banner"></div><input type="hidden" id="wc_cashpresso_refresh_amount" value="' . $this->amount . '"/>';
       $this->description = __($this->get_option('description'), 'lnx-cashpresso-woocommerce') . '<p>&nbsp;</p><input type="hidden" id="cashpressoToken" name="cashpressoToken"><div id="cashpresso-checkout"></div><script type="text/javascript"> //document.addEventListener("DOMContentLoaded", function(event) { if (window.C2EcomCheckout) { window.C2EcomCheckout.refresh( ); } //});</script>';
 
       $this->secretkey = $this->get_option('secretkey');
@@ -250,8 +250,8 @@ function wc_cashpresso_gateway_init() {
      * Add an array of fields to be displayed
      * on the gateway's settings screen.
      *
-     * @since  1.0.0
      * @return string
+     * @since  1.0.0
      */
     public function init_form_fields() {
 
@@ -264,20 +264,20 @@ function wc_cashpresso_gateway_init() {
         $url = $this->getUrl() . "/backend/ecommerce/v2/partnerInfo";
 
         $data = wp_remote_post($url, array(
-            'headers' => array('Content-Type' => 'application/json; charset=utf-8'),
-            'body' => json_encode($parameters),
-            'method' => 'POST',
+          'headers' => array('Content-Type' => 'application/json; charset=utf-8'),
+          'body' => json_encode($parameters),
+          'method' => 'POST',
         ));
 
         if ($this->wasRequestSuccess($data)) {
-          
+
           $obj = json_decode($data["body"], true);
 
           $this->settings["minPaybackAmount"] = $obj["minPaybackAmount"];
           $this->settings["interestFreeEnabled"] = $obj["interestFreeEnabled"];
           $this->settings["limitTotal"] = $obj["limit"]["total"];
           $this->settings["paybackRate"] = $obj["paybackRate"];
-          $this->settings["interestFreeMaxDuration"] = $obj["interestFreeMaxDuration"];       
+          $this->settings["interestFreeMaxDuration"] = $obj["interestFreeMaxDuration"];
 
           $this->settings["partnerInfo"] = $data["body"];
           $this->settings["partnerInfoTimestamp"] = strftime("%Y-%m-%d %H:%M:%S");
@@ -287,105 +287,104 @@ function wc_cashpresso_gateway_init() {
             $this->settings["interestFreeDaysMerchant"] = $obj["interestFreeMaxDuration"];
           } elseif (!$obj["interestFreeEnabled"]) {
             $this->settings["interestFreeDaysMerchant"] = 0;
-          }   
+          }
 
           update_option($this->get_option_key(), apply_filters('woocommerce_settings_api_sanitized_fields_' . $this->id, $this->settings));
         }
       }
 
       $fields = array(
-          'enabled' => array(
-              'title' => __('Aktiviert/Deaktiviert', 'lnx-cashpresso-woocommerce'),
-              'type' => 'checkbox',
-              'label' => __('Aktiviere cashpresso Zahlung', 'lnx-cashpresso-woocommerce'),
-              'default' => 'yes',
-          ),
-          'title' => array(
-              'title' => __('Titel', 'lnx-cashpresso-woocommerce'),
-              'type' => 'text',
-              'description' => __('Namen der im Shop angezeigt wird', 'lnx-cashpresso-woocommerce'),
-              'default' => __('Ratenkauf', 'lnx-cashpresso-woocommerce'),
-              'desc_tip' => true,
-          ),
-          'description' => array(
-              'title' => __('Beschreibung', 'lnx-cashpresso-woocommerce'),
-              'type' => 'textarea',
-              'description' => __('Beschreibung der Zahlungsart', 'lnx-cashpresso-woocommerce'),
-              'default' => __('cashpresso ermöglicht dir Einkäufe in Raten zu bezahlen. Deine Ratenhöhe kannst du dir beim Kauf aussuchen und später jederzeit ändern.', 'lnx-cashpresso-woocommerce'),
-              'desc_tip' => true,
-          ),
-          'secretkey' => array(
-              'title' => __('Secret Key', 'lnx-cashpresso-woocommerce'),
-              'type' => 'text',
-              'description' => __('Secret Key', 'lnx-cashpresso-woocommerce'),
-              'default' => __('', 'lnx-cashpresso-woocommerce'),
-              'desc_tip' => true,
-          ),
-          'apikey' => array(
-              'title' => __('Api Key', 'lnx-cashpresso-woocommerce'),
-              'type' => 'text',
-              'description' => __('Api Key', 'lnx-cashpresso-woocommerce'),
-              'default' => __('', 'lnx-cashpresso-woocommerce'),
-              'desc_tip' => true,
-          ),
-          'modus' => array(
-              'title' => __(__('Modus'), 'lnx-cashpresso-woocommerce'),
-              'type' => 'select',
-              'options' => [__("live"), __("test")],
-              'description' => __('k', 'lnx-cashpresso-woocommerce'),
-              'description' => __('Die beiden Modi können nur mit den entsprechenden Zugangsdaten verwendet werden. Haben Sie z.B. Live-Zugangsdaten, so können Sie nur den Live-Modus verwenden. Um Sandboxing im Live-Modus zu de/aktivieren, wenden Sie sich bitte an cashpresso.', 'lnx-cashpresso-woocommerce'),
-              'default' => __('live', 'lnx-cashpresso-woocommerce'),
-              'desc_tip' => true,
-          ),
-          'direct_checkout' => array(
-              'title' => __('Direct checkout', 'lnx-cashpresso-woocommerce'),
-              'type' => 'checkbox',
-              'description' => __('Ermöglicht das Hinzufügen der Produkte zum Warenkorb sowie die Weiterleitung zum Checkout direkt aus dem cashpresso Overlay.', 'lnx-cashpresso-woocommerce'),
-              'default' => __('', 'lnx-cashpresso-woocommerce'),
-              'desc_tip' => true,
-          ),
-          'validUntil' => array(
-              'title' => __('Gültigkeitsdauer', 'lnx-cashpresso-woocommerce'),
-              'type' => 'number',
-              'description' => __('Wie lange kann der Käufer den Prozess bei cashpresso abschließen. Sie müssen solange die Ware vorhalten. (Angabe in Stunden).', 'lnx-cashpresso-woocommerce'),
-              'default' => '336',
-              'desc_tip' => true,
-          ),
-          'productLevel' => array(
-              'title' => __('cashpresso auf Produktebene', 'lnx-cashpresso-woocommerce'),
-              'type' => 'select',
-              'options' => [__("deaktivieren"), __("dynamisch"), __("statisch")],
-              'description' => __('Soll die Option der Ratenzahlung auf Produktebene angezeigt werden?', 'lnx-cashpresso-woocommerce'),
-              'default' => __('', 'lnx-cashpresso-woocommerce'),
-              'desc_tip' => true,
-          ),
-          'productLabelLocation' => array(
-              'title' => __('Platzierung auf Produktebene', 'lnx-cashpresso-woocommerce'),
-              'type' => 'select',
-              'options' => [__("keine"), __("Produktseite"), __("Produktseite & Katalog")],
-              'description' => __('Wo soll es angezeigt werden?', 'lnx-cashpresso-woocommerce'),
-              'default' => __('', 'lnx-cashpresso-woocommerce'),
-              'desc_tip' => true,
-          ),
-          'boost' => array(
-              'title' => __('Hervorheben', 'lnx-cashpresso-woocommerce'),
-              'type' => 'select',
-              'description' => __('Schrift vergrößern', 'lnx-cashpresso-woocommerce'),
-              'options' => ["80%", "100%", "120%"],
-              'default' => '100% Schriftgröße',
-              'desc_tip' => true,
-          ));
+        'enabled' => array(
+          'title' => __('Aktiviert/Deaktiviert', 'lnx-cashpresso-woocommerce'),
+          'type' => 'checkbox',
+          'label' => __('Aktiviere cashpresso Zahlung', 'lnx-cashpresso-woocommerce'),
+          'default' => 'yes',
+        ),
+        'title' => array(
+          'title' => __('Titel', 'lnx-cashpresso-woocommerce'),
+          'type' => 'text',
+          'description' => __('Namen der im Shop angezeigt wird', 'lnx-cashpresso-woocommerce'),
+          'default' => __('Ratenkauf', 'lnx-cashpresso-woocommerce'),
+          'desc_tip' => true,
+        ),
+        'description' => array(
+          'title' => __('Beschreibung', 'lnx-cashpresso-woocommerce'),
+          'type' => 'textarea',
+          'description' => __('Beschreibung der Zahlungsart', 'lnx-cashpresso-woocommerce'),
+          'default' => __('cashpresso ermöglicht dir Einkäufe in Raten zu bezahlen. Deine Ratenhöhe kannst du dir beim Kauf aussuchen und später jederzeit ändern.', 'lnx-cashpresso-woocommerce'),
+          'desc_tip' => true,
+        ),
+        'secretkey' => array(
+          'title' => __('Secret Key', 'lnx-cashpresso-woocommerce'),
+          'type' => 'text',
+          'description' => __('Secret Key', 'lnx-cashpresso-woocommerce'),
+          'default' => __('', 'lnx-cashpresso-woocommerce'),
+          'desc_tip' => true,
+        ),
+        'apikey' => array(
+          'title' => __('Api Key', 'lnx-cashpresso-woocommerce'),
+          'type' => 'text',
+          'description' => __('Api Key', 'lnx-cashpresso-woocommerce'),
+          'default' => __('', 'lnx-cashpresso-woocommerce'),
+          'desc_tip' => true,
+        ),
+        'modus' => array(
+          'title' => __(__('Modus'), 'lnx-cashpresso-woocommerce'),
+          'type' => 'select',
+          'options' => [__("live"), __("test")],
+          'description' => __('k', 'lnx-cashpresso-woocommerce'),
+          'description' => __('Die beiden Modi können nur mit den entsprechenden Zugangsdaten verwendet werden. Haben Sie z.B. Live-Zugangsdaten, so können Sie nur den Live-Modus verwenden. Um Sandboxing im Live-Modus zu de/aktivieren, wenden Sie sich bitte an cashpresso.', 'lnx-cashpresso-woocommerce'),
+          'default' => __('live', 'lnx-cashpresso-woocommerce'),
+          'desc_tip' => true,
+        ),
+        'direct_checkout' => array(
+          'title' => __('Direct checkout', 'lnx-cashpresso-woocommerce'),
+          'type' => 'checkbox',
+          'description' => __('Ermöglicht das Hinzufügen der Produkte zum Warenkorb sowie die Weiterleitung zum Checkout direkt aus dem cashpresso Overlay.', 'lnx-cashpresso-woocommerce'),
+          'default' => __('', 'lnx-cashpresso-woocommerce'),
+          'desc_tip' => true,
+        ),
+        'validUntil' => array(
+          'title' => __('Gültigkeitsdauer', 'lnx-cashpresso-woocommerce'),
+          'type' => 'number',
+          'description' => __('Wie lange kann der Käufer den Prozess bei cashpresso abschließen. Sie müssen solange die Ware vorhalten. (Angabe in Stunden).', 'lnx-cashpresso-woocommerce'),
+          'default' => '336',
+          'desc_tip' => true,
+        ),
+        'productLevel' => array(
+          'title' => __('cashpresso auf Produktebene', 'lnx-cashpresso-woocommerce'),
+          'type' => 'select',
+          'options' => [__("deaktivieren"), __("dynamisch"), __("statisch")],
+          'description' => __('Soll die Option der Ratenzahlung auf Produktebene angezeigt werden?', 'lnx-cashpresso-woocommerce'),
+          'default' => __('', 'lnx-cashpresso-woocommerce'),
+          'desc_tip' => true,
+        ),
+        'productLabelLocation' => array(
+          'title' => __('Platzierung auf Produktebene', 'lnx-cashpresso-woocommerce'),
+          'type' => 'select',
+          'options' => [__("keine"), __("Produktseite"), __("Produktseite & Katalog")],
+          'description' => __('Wo soll es angezeigt werden?', 'lnx-cashpresso-woocommerce'),
+          'default' => __('', 'lnx-cashpresso-woocommerce'),
+          'desc_tip' => true,
+        ),
+        'boost' => array(
+          'title' => __('Hervorheben', 'lnx-cashpresso-woocommerce'),
+          'type' => 'select',
+          'description' => __('Schrift vergrößern', 'lnx-cashpresso-woocommerce'),
+          'options' => ["80%", "100%", "120%"],
+          'default' => '100% Schriftgröße',
+          'desc_tip' => true,
+        ));
 
       if ($this->settings["interestFreeEnabled"]) {
         $fields['interestFreeDaysMerchant'] = array(
-            'title' => __('Zinsfreie Tage', 'lnx-cashpresso-woocommerce'),
-            'type' => 'number',
-            'description' => __('Zinsfreie Tage. Nur möglich wenn das Feature für diesen Account von cashpresso freigegeben wurde.', 'lnx-cashpresso-woocommerce'),
-            'default' => '0',
-            'desc_tip' => true,
+          'title' => __('Zinsfreie Tage', 'lnx-cashpresso-woocommerce'),
+          'type' => 'number',
+          'description' => __('Zinsfreie Tage. Nur möglich wenn das Feature für diesen Account von cashpresso freigegeben wurde.', 'lnx-cashpresso-woocommerce'),
+          'default' => '0',
+          'desc_tip' => true,
         );
       }
-
 
 
       $this->form_fields = $fields;
@@ -433,6 +432,11 @@ function wc_cashpresso_gateway_init() {
       $order = wc_get_order($order_id);
 
       $purchaseId = $this->sendBuyRequest($order);
+      if (!$purchaseId) {
+        return array(
+          'result' => 'failure'
+        );
+      }
 
       $order->update_status('pending', __('Kunde muss sich noch verifizieren.', 'lnx-cashpresso-woocommerce'));
 
@@ -443,8 +447,8 @@ function wc_cashpresso_gateway_init() {
       WC()->cart->empty_cart();
 
       return array(
-          'result' => 'success',
-          'redirect' => $this->get_return_url($order),
+        'result' => 'success',
+        'redirect' => $this->get_return_url($order),
       );
     }
 
@@ -474,9 +478,9 @@ function wc_cashpresso_gateway_init() {
       $url = $this->getUrl() . "/backend/ecommerce/v2/buy";
 
       $data = wp_remote_post($url, array(
-          'headers' => array('Content-Type' => 'application/json; charset=utf-8'),
-          'body' => json_encode($parameters),
-          'method' => 'POST',
+        'headers' => array('Content-Type' => 'application/json; charset=utf-8'),
+        'body' => json_encode($parameters),
+        'method' => 'POST',
       ));
 
       if ($this->wasRequestSuccess($data)) {
@@ -489,7 +493,15 @@ function wc_cashpresso_gateway_init() {
         return $purchaseId;
       } else {
         $obj = json_decode($data["body"]);
-        wc_add_notice($obj->error->description, 'error');
+
+        $message = __('cashpresso Ratenkauf: Ein Fehler ist aufgetreten, bitte wende dich an <a href="mailto:support@cashpresso.com">support@cashpresso.com</a>', 'lnx-cashpresso-woocommerce');
+        $errorType = $obj->error->type;
+
+        if ($errorType === 'DUPLICATE_CUSTOMER' || $errorType === 'DUPLICATE_EMAIL') {
+          $message = __('cashpresso Ratenkauf: Du hast bereits einen cashpresso Account. Bitte klicke auf Raten ändern und log dich erneut mit deiner E-Mail Adresse an.', 'lnx-cashpresso-woocommerce');
+        }
+
+        wc_add_notice($message, 'error');
 
         return false;
       }
@@ -564,11 +576,10 @@ function wc_cashpresso_gateway_init() {
         if (isset($_GET['key'])) {
           $order_key = $_GET['key'];
           $order_id = wc_get_order_id_by_order_key($order_key);
-          $order = new WC_Order( $order_id );
+          $order = new WC_Order($order_id);
           $amount = $order->get_total();
         }
       }
-
 
 
       if (is_checkout() && !is_wc_endpoint_url('order-received') && !is_wc_endpoint_url('view-order')) {
