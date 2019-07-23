@@ -248,3 +248,9 @@ msgstr "from"
 #: lnx-cashpresso-woocommerce-gateway.php:878
 msgid "Monat"
 msgstr "month"
+
+msgid "cashpresso Ratenkauf: Ein Fehler ist aufgetreten, bitte wende dich an <a href=\"mailto:support@cashpresso.com\">support@cashpresso.com</a>"
+msgstr "cashpresso Financing: An error occurred, please get in touch with us at <a href=\"mailto:support@cashpresso.com\">support@cashpresso.com</a>"
+
+msgid "cashpresso Ratenkauf: Du hast bereits einen cashpresso Account. Bitte klicke auf Raten ändern und log dich erneut mit deiner E-Mail Adresse an."
+msgstr "cashpresso Financing: You already have an account. Please click on 'Choose instalments', sign out and sign in again with your email address."
