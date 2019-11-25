@@ -66,7 +66,7 @@ function wc_cashpresso_gateway_init() {
       $this->method_description = __("cashpresso ermöglicht es Ihren Kunden den Einkauf in Raten zu bezahlen.", "lnx-cashpresso-woocommerce");
 
       $this->amount = is_admin() ? 0.0 : (float)WC()->cart->total;
-      $this->title = $this->get_option('title') . ' <div id="cashpresso-availability-banner"></div><input type="hidden" id="wc_cashpresso_refresh_amount" value="' . $this->amount . '"/>';
+      $this->title = $this->get_option('title');
       $this->description = __($this->get_option('description'), 'lnx-cashpresso-woocommerce') . '<p>&nbsp;</p><input type="hidden" id="cashpressoToken" name="cashpressoToken"><div id="cashpresso-checkout"></div><script type="text/javascript"> //document.addEventListener("DOMContentLoaded", function(event) { if (window.C2EcomCheckout) { window.C2EcomCheckout.refresh( ); } //});</script>';
 
       $this->secretkey = $this->get_option('secretkey');
