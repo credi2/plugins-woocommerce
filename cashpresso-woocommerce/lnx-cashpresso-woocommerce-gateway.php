@@ -3,7 +3,7 @@
  * Plugin Name: WooCommerce cashpresso Payment Gateway
  * Plugin URI: https://www.cashpresso.com/de/i/business
  * Description: A payment gateway for cashpresso instalment payments.
- * Version: 1.0.6
+ * Version: 1.1.0
  * Author: Credi2 GmbH | cashpresso
  * Author URI: https://www.cashpresso.com/de/i/business
  * Copyright: © 2017 Credi2 GmbH.
@@ -474,17 +474,19 @@ function wc_cashpresso_gateway_init() {
         'method' => 'POST',
       ));
 
+      if (is_wp_error($data)) {
+        $this->logError($data);
+        return false;
+      }
+
       if ($this->wasRequestSuccess($data)) {
         $obj = json_decode($data["body"]);
         $purchaseId = $obj->purchaseId;
-
         $order->add_meta_data("purchaseId", $purchaseId);
         $order->save_meta_data();
-
         return $purchaseId;
       } else {
         $obj = json_decode($data["body"]);
-
         $message = __('cashpresso Ratenkauf: Ein Fehler ist aufgetreten, bitte wende dich an <a href="mailto:support@cashpresso.com">support@cashpresso.com</a>', 'lnx-cashpresso-woocommerce');
         $errorType = $obj->error->type;
 
@@ -493,7 +495,6 @@ function wc_cashpresso_gateway_init() {
         }
 
         wc_add_notice($message, 'error');
-
         return false;
       }
     }
@@ -515,10 +516,14 @@ function wc_cashpresso_gateway_init() {
     }
 
     private function logError($data) {
-      if (is_array($data) || is_object($data)) {
-        error_log(print_r($data, true));
-      } else {
-        error_log($data);
+      try {
+        if (is_array($data) || is_object($data)) {
+          error_log(print_r($data, true));
+        } else {
+          error_log($data);
+        }
+      } catch (Exception $e) {
+        return;
       }
     }
 
