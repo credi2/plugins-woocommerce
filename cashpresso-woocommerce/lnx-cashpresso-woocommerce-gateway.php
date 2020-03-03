@@ -85,7 +85,9 @@ function wc_cashpresso_gateway_init() {
       $this->minPaybackAmount = $this->get_option('minPaybackAmount');
       $this->limitTotal = $this->get_option('limitTotal');
 
-      $this->init_form_fields();
+      if (is_admin() || $this->isTimeForUpdate()) {
+        $this->init_form_fields();
+      }
       $this->init_settings();
 
       add_action('woocommerce_api_wc_gateway_cashpresso', array($this, 'processCallback'));
@@ -379,6 +381,12 @@ function wc_cashpresso_gateway_init() {
 
 
       $this->form_fields = $fields;
+    }
+
+    public function isTimeForUpdate() {
+      $last_update = $this->settings["partnerInfoTimestamp"];
+      $day_in_seconds = 60 * 60 * 24;
+      return isset($last_update) && (time() - strtotime($last_update) > $day_in_seconds);
     }
 
     public function isLive() {
