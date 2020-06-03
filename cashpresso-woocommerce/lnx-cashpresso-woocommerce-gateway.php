@@ -422,12 +422,16 @@ function wc_cashpresso_gateway_init() {
       return $this->settings["interestFreeDaysMerchant"];
     }
 
-    public function process_payment($order_id) {
+    public function validate_fields() {
       if (empty($_POST['cashpressoToken'])) {
         wc_add_notice(__('Bitte wähle deine Rate aus.', 'lnx-cashpresso-woocommerce'), 'error');
-        return;
+        return false;
       }
 
+      return true;
+    }
+
+    public function process_payment($order_id) {
       $order = wc_get_order($order_id);
 
       $purchaseId = $this->sendBuyRequest($order);
