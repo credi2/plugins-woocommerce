@@ -482,7 +482,7 @@ function wc_cashpresso_gateway_init() {
       $parameters["c2EcomId"] = $_POST["cashpressoToken"];
       $parameters["amount"] = floatval($order->calculate_totals());
       $parameters["verificationHash"] = $this->generateSendingVerificationHash($this->getSecretKey(), floatval($order->calculate_totals()), $this->getInterestFreeDaysMerchant(), "Order-" . $order->get_id(), null);
-      $parameters["validUntil"] = date('c', mktime() + $this->validUntil * 3600);
+      $parameters["validUntil"] = date('c', time() + $this->validUntil * 3600);
       $parameters["bankUsage"] = "Order-" . $order->get_id();
       $parameters["interestFreeDaysMerchant"] = $this->getInterestFreeDaysMerchant();
       $parameters["callbackUrl"] = trailingslashit(get_site_url()) . "?wc-api=wc_gateway_cashpresso";
