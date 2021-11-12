@@ -65,7 +65,18 @@ function wc_cashpresso_gateway_init() {
       $this->method_title = __("cashpresso Ratenkauf", "lnx-cashpresso-woocommerce");
       $this->method_description = __("cashpresso ermöglicht es Ihren Kunden den Einkauf in Raten zu bezahlen.", "lnx-cashpresso-woocommerce");
 
-      $this->amount = is_admin() ? 0.0 : (float)WC()->cart->total;
+      if (is_admin()) {
+        $this->amount = 0.0;
+      } else {
+        $cart = WC()->cart;
+
+        if ($cart === null) {
+          $this->amount = 0.0;
+        } else {
+          $this->amount = (float)$cart->total;
+        }
+      }
+
       $this->title = $this->get_option('title');
       $this->description = __($this->get_option('description'), 'lnx-cashpresso-woocommerce') . '<p>&nbsp;</p><input type="hidden" id="cashpressoToken" name="cashpressoToken"><div id="cashpresso-checkout"></div><script type="text/javascript"> //document.addEventListener("DOMContentLoaded", function(event) { if (window.C2EcomCheckout) { window.C2EcomCheckout.refresh( ); } //});</script>';
 
@@ -471,7 +482,7 @@ function wc_cashpresso_gateway_init() {
       $parameters["c2EcomId"] = $_POST["cashpressoToken"];
       $parameters["amount"] = floatval($order->calculate_totals());
       $parameters["verificationHash"] = $this->generateSendingVerificationHash($this->getSecretKey(), floatval($order->calculate_totals()), $this->getInterestFreeDaysMerchant(), "Order-" . $order->get_id(), null);
-      $parameters["validUntil"] = date('c', mktime() + $this->validUntil * 3600);
+      $parameters["validUntil"] = date('c', time() + $this->validUntil * 3600);
       $parameters["bankUsage"] = "Order-" . $order->get_id();
       $parameters["interestFreeDaysMerchant"] = $this->getInterestFreeDaysMerchant();
       $parameters["callbackUrl"] = trailingslashit(get_site_url()) . "?wc-api=wc_gateway_cashpresso";
