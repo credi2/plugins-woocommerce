@@ -809,11 +809,16 @@ function wc_cashpresso_label_js() {
 
   $settings = get_option('woocommerce_cashpresso_settings');
 
-  if (is_cart() || is_checkout() || is_view_order_page() || $settings["productLabelLocation"] == "0" || $settings["productLevel"] == "0") {
+  if (
+    empty($settings)
+    || $settings['productLabelLocation'] === '0'
+    || $settings['productLevel'] === '0'
+    || is_cart()
+    || is_checkout()
+    || is_view_order_page()
+  ) {
     return;
   }
-
-  $product = wc_get_product();
 
   $locale = "en";
   if (get_bloginfo("language") == "de-DE") {
