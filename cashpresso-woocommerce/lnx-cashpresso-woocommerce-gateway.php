@@ -14,11 +14,6 @@
  */
 defined('ABSPATH') or exit;
 
-// Make sure WooCommerce is active
-if (!in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
-  return;
-}
-
 /**
  * Add the gateway to WC Available Gateways
  *
@@ -30,8 +25,6 @@ function wc_cashpresso_add_to_gateways($gateways) {
   $gateways[] = 'WC_Gateway_Cashpresso';
   return $gateways;
 }
-
-add_filter('woocommerce_payment_gateways', 'wc_cashpresso_add_to_gateways');
 
 /**
  * Adds plugin page links
@@ -46,8 +39,6 @@ function wc_cashpresso_gateway_plugin_links($links) {
   );
   return array_merge($plugin_links, $links);
 }
-
-add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'wc_cashpresso_gateway_plugin_links');
 
 function wc_cashpresso_gateway_init() {
 
@@ -96,10 +87,11 @@ function wc_cashpresso_gateway_init() {
       $this->minPaybackAmount = $this->get_option('minPaybackAmount');
       $this->limitTotal = $this->get_option('limitTotal');
 
+      $this->init_settings();
+
       if (is_admin() || $this->isTimeForUpdate()) {
         $this->init_form_fields();
       }
-      $this->init_settings();
 
       add_action('woocommerce_api_wc_gateway_cashpresso', array($this, 'processCallback'));
 
@@ -717,8 +709,6 @@ function wc_cashpresso_gateway_init() {
   // end \WC_Gateway_Offline class
 }
 
-add_action('plugins_loaded', 'wc_cashpresso_gateway_init', 11);
-
 function product_level_integration($price, $product = null) {
 
   if (empty($product)) {
@@ -796,8 +786,6 @@ function getStaticRate($price, $paybackRate, $minPaybackAmount) {
   return min(floatval($price), max(floatval($minPaybackAmount), floatval($price * 0.01 * $paybackRate)));
 }
 
-add_filter('woocommerce_get_price_html', 'product_level_integration', 10, 2);
-
 function wc_cashpresso_label_js() {
 
   $settings = get_option('woocommerce_cashpresso_settings');
@@ -848,10 +836,19 @@ data-c2-locale="' . $locale . '" ></script>';
 		} )});</script>';
 }
 
-add_action('wp_head', 'wc_cashpresso_label_js');
-
 function plugin_init() {
+  // Make sure WooCommerce is active
+  if (!class_exists('WooCommerce')) {
+    return;
+  }
+
+  add_filter('woocommerce_payment_gateways', 'wc_cashpresso_add_to_gateways');
+  add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'wc_cashpresso_gateway_plugin_links');
+  add_filter('woocommerce_get_price_html', 'product_level_integration', 10, 2);
+  add_action('wp_head', 'wc_cashpresso_label_js');
+
   load_plugin_textdomain('lnx-cashpresso-woocommerce', false, dirname(plugin_basename(__FILE__)) . '/languages/');
 }
 
 add_action('plugins_loaded', 'plugin_init');
+add_action('plugins_loaded', 'wc_cashpresso_gateway_init', 11);
