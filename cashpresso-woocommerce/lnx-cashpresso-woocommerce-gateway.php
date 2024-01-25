@@ -117,43 +117,57 @@ function wc_cashpresso_gateway_init() {
       }
     }
 
-    public function validate_apikey_field($key) {
-      $value = $_POST['woocommerce_cashpresso_' . $key];
-      if (empty($value)) {
-        $value = $this->get_option("apikey");
-        echo __("<div class=\"error\"><p>" . __("<strong>ApiKey</strong> invalid. Not updated.") . "</p></div>", "lnx-cashpresso-woocommerce");
+    private function validateField($key, $value, $check, $message) {
+      if ($check) {
+        $value = $this->get_option($key);
+        \WC_Admin_Settings::add_error(
+          $message
+        );
       }
 
       return $value;
     }
 
-    public function validate_secretkey_field($key) {
-      $value = $_POST['woocommerce_cashpresso_' . $key];
-      if (empty($value)) {
-        $value = $this->get_option("secretkey");
-        echo __("<div class=\"error\"><p>" . __("<strong>SecretKey</strong> invalid. Not updated.") . "</p></div>", "lnx-cashpresso-woocommerce");
-      }
-
-      return $value;
+    public function validate_apikey_field($key, $value) {
+      return $this->validateField(
+        $key,
+        $value,
+        empty($value),
+        __('Error Api Key invalid. Not updated.', 'lnx-cashpresso-woocommerce')
+      );
     }
 
-    public function validate_validUntil_field($key) {
-      $value = $_POST['woocommerce_cashpresso_' . $key];
-      if (empty($value)) {
-        $value = $this->get_option("validUntil");
-        echo __("<div class=\"error\"><p>" . __("<strong>Period of Validity</strong> invalid. Not updated.") . "</p></div>", "lnx-cashpresso-woocommerce");
-
-      }
-      return $value;
+    public function validate_secretkey_field($key, $value) {
+      return $this->validateField(
+        $key,
+        $value,
+        empty($value),
+        __('Error: Secret Key invalid. Not updated.', 'lnx-cashpresso-woocommerce')
+      );
     }
 
-    public function validate_interestFreeDaysMerchant_field($key) {
-      $value = $_POST['woocommerce_cashpresso_' . $key];
-      if (isset($this->settings["interestFreeMaxDuration"]) && intval($value) > intval($this->settings["interestFreeMaxDuration"])) {
-        $value = $this->get_option("interestFreeDaysMerchant");
-        echo __("<div class=\"error\"><p>" . __("<strong>interest-free days</strong> invalid. Max Duration is set to: " . $this->settings["interestFreeMaxDuration"] . ". Not updated.") . "</p></div>", "lnx-cashpresso-woocommerce");
-      }
-      return $value;
+    public function validate_validUntil_field($key, $value) {
+      return $this->validateField(
+        $key,
+        $value,
+        empty($value),
+        __('Error: Period of Validity invalid. Not updated.', 'lnx-cashpresso-woocommerce')
+      );
+    }
+
+    public function validate_interestFreeDaysMerchant_field($key, $value) {
+      return $this->validateField(
+        $key,
+        $value,
+        empty($this->settings['interestFreeMaxDuration']) === false && (int)$value > (int)$this->settings['interestFreeMaxDuration'],
+        sprintf(
+          __(
+            'Error: Interest-free Days invalid. Max Duration is set to: %d. Not updated.',
+            'lnx-cashpresso-woocommerce'
+          ),
+          $this->settings['interestFreeMaxDuration']
+        )
+      );
     }
 
     public function do_eur_check() {
