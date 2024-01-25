@@ -352,10 +352,9 @@ function wc_cashpresso_gateway_init() {
         'modus' => array(
           'title' => __(__('Modus'), 'lnx-cashpresso-woocommerce'),
           'type' => 'select',
-          'options' => [__("live"), __("test")],
-          'description' => __('k', 'lnx-cashpresso-woocommerce'),
+          'options' => [__("live", 'lnx-cashpresso-woocommerce'), __("test", 'lnx-cashpresso-woocommerce')],
           'description' => __('Die beiden Modi können nur mit den entsprechenden Zugangsdaten verwendet werden. Haben Sie z.B. Live-Zugangsdaten, so können Sie nur den Live-Modus verwenden. Um Sandboxing im Live-Modus zu de/aktivieren, wenden Sie sich bitte an cashpresso.', 'lnx-cashpresso-woocommerce'),
-          'default' => __('live', 'lnx-cashpresso-woocommerce'),
+          'default' => '0',
           'desc_tip' => true,
         ),
         'validUntil' => array(
@@ -368,17 +367,17 @@ function wc_cashpresso_gateway_init() {
         'productLevel' => array(
           'title' => __('cashpresso auf Produktebene', 'lnx-cashpresso-woocommerce'),
           'type' => 'select',
-          'options' => [__("deaktivieren"), __("dynamisch"), __("statisch")],
+          'options' => [__("deaktivieren", 'lnx-cashpresso-woocommerce'), __("dynamisch", 'lnx-cashpresso-woocommerce'), __("statisch", 'lnx-cashpresso-woocommerce')],
           'description' => __('Soll die Option der Ratenzahlung auf Produktebene angezeigt werden?', 'lnx-cashpresso-woocommerce'),
-          'default' => __('', 'lnx-cashpresso-woocommerce'),
+          'default' => '0',
           'desc_tip' => true,
         ),
         'productLabelLocation' => array(
           'title' => __('Platzierung auf Produktebene', 'lnx-cashpresso-woocommerce'),
           'type' => 'select',
-          'options' => [__("keine"), __("Produktseite"), __("Produktseite & Katalog")],
+          'options' => [__("keine", 'lnx-cashpresso-woocommerce'), __("Produktseite", 'lnx-cashpresso-woocommerce'), __("Produktseite & Katalog", 'lnx-cashpresso-woocommerce')],
           'description' => __('Wo soll es angezeigt werden?', 'lnx-cashpresso-woocommerce'),
-          'default' => __('', 'lnx-cashpresso-woocommerce'),
+          'default' => '0',
           'desc_tip' => true,
         ),
         'boost' => array(
@@ -386,11 +385,11 @@ function wc_cashpresso_gateway_init() {
           'type' => 'select',
           'description' => __('Schrift vergrößern', 'lnx-cashpresso-woocommerce'),
           'options' => ["80%", "100%", "120%"],
-          'default' => '100% Schriftgröße',
+          'default' => '1',
           'desc_tip' => true,
         ));
 
-      if ($this->settings["interestFreeEnabled"]) {
+      if (empty($this->settings["interestFreeEnabled"]) === false) {
         $fields['interestFreeDaysMerchant'] = array(
           'title' => __('Zinsfreie Tage', 'lnx-cashpresso-woocommerce'),
           'type' => 'number',
