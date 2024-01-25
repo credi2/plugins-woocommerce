@@ -50,6 +50,15 @@ function wc_cashpresso_gateway_init() {
 
     protected $amount;
 
+    private $secretkey;
+    private $apikey;
+    private $modus;
+    private $validUntil;
+    private $boost;
+    private $interestFreeMaxDuration;
+    private $minPaybackAmount;
+    private $limitTotal;
+
     public function __construct() {
       $this->id = "cashpresso";
       $this->has_fields = false;
@@ -182,7 +191,7 @@ function wc_cashpresso_gateway_init() {
 
     public function processCallback() {
       $json = file_get_contents('php://input');
-      $data = json_decode($json);
+      $data = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
 
       if ($this->generateReceivingVerificationHash($this->getSecretKey(), $data->status, $data->referenceId, $data->usage) == $data->verificationHash) {
         $order_id = intval(substr($data->usage, 6));
@@ -200,7 +209,6 @@ function wc_cashpresso_gateway_init() {
             break;
           default:
             throw new Exception("Status not valid!");
-            break;
         }
         echo "OK";
       } else {
@@ -253,7 +261,6 @@ function wc_cashpresso_gateway_init() {
      * Add an array of fields to be displayed
      * on the gateway's settings screen.
      *
-     * @return string
      * @since  1.0.0
      */
     public function init_form_fields() {
@@ -283,10 +290,10 @@ function wc_cashpresso_gateway_init() {
           $this->settings["interestFreeMaxDuration"] = $obj["interestFreeMaxDuration"];
 
           $this->settings["partnerInfo"] = $data["body"];
-          $this->settings["partnerInfoTimestamp"] = strftime("%Y-%m-%d %H:%M:%S");
+          $this->settings["partnerInfoTimestamp"] = date('Y-m-d H:i:s');
 
-          if ($obj["interestFreeEnabled"] && isset($this->settings["interestFreeMaxDuration"]) &&
-            $this->getInterestFreeDaysMerchant() > intval($this->settings["interestFreeMaxDuration"])) {
+          if (empty($obj["interestFreeEnabled"]) === false && empty($this->settings["interestFreeMaxDuration"]) === false &&
+            $this->getInterestFreeDaysMerchant() > (int)$this->settings["interestFreeMaxDuration"]) {
             $this->settings["interestFreeDaysMerchant"] = $obj["interestFreeMaxDuration"];
           } elseif (!$obj["interestFreeEnabled"]) {
             $this->settings["interestFreeDaysMerchant"] = 0;
@@ -387,9 +394,12 @@ function wc_cashpresso_gateway_init() {
     }
 
     public function isTimeForUpdate() {
+      if (empty($this->settings['partnerInfoTimestamp'])) {
+        return false;
+      }
+
       $last_update = $this->settings["partnerInfoTimestamp"];
-      $day_in_seconds = 60 * 60 * 24;
-      return isset($last_update) && (time() - strtotime($last_update) > $day_in_seconds);
+      return isset($last_update) && (time() - strtotime($last_update) > DAY_IN_SECONDS);
     }
 
     public function isLive() {
@@ -419,10 +429,7 @@ function wc_cashpresso_gateway_init() {
     }
 
     public function getInterestFreeDaysMerchant() {
-      if (!is_numeric($this->settings["interestFreeDaysMerchant"])) {
-        return intval($this->settings["interestFreeDaysMerchant"]);
-      }
-      return $this->settings["interestFreeDaysMerchant"];
+      return (int)$this->settings["interestFreeDaysMerchant"];
     }
 
     public function validate_fields() {
@@ -447,7 +454,7 @@ function wc_cashpresso_gateway_init() {
       $order->update_status('pending', __('Kunde muss sich noch verifizieren.', 'lnx-cashpresso-woocommerce'));
 
       // Reduce stock levels
-      $order->reduce_order_stock();
+      wc_reduce_stock_levels($order_id);
 
       // Remove cart
       WC()->cart->empty_cart();
@@ -456,15 +463,6 @@ function wc_cashpresso_gateway_init() {
         'result' => 'success',
         'redirect' => $this->get_return_url($order),
       );
-    }
-
-    /**
-     * Output for the order received page.
-     */
-    public function thankyou_page() {
-      if ($this->instructions) {
-        echo wpautop(wptexturize($this->instructions));
-      }
     }
 
     public function sendBuyRequest($order) {
@@ -783,7 +781,7 @@ function product_level_integration($price, $product = null) {
 }
 
 function getStaticRate($price, $paybackRate, $minPaybackAmount) {
-  return min(floatval($price), max(floatval($minPaybackAmount), floatval($price * 0.01 * $paybackRate)));
+  return min(floatval($price), max(floatval($minPaybackAmount), $price * 0.01 * $paybackRate));
 }
 
 function wc_cashpresso_label_js() {
