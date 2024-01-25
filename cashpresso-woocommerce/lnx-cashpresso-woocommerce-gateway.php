@@ -90,9 +90,6 @@ function wc_cashpresso_gateway_init() {
 
       $this->interestFreeMaxDuration = $this->get_option('interestFreeMaxDuration');
 
-      $this->instructions = __('post-checkout-instructions', 'lnx-cashpresso-woocommerce');
-
-
       $this->minPaybackAmount = $this->get_option('minPaybackAmount');
       $this->limitTotal = $this->get_option('limitTotal');
 
@@ -107,7 +104,7 @@ function wc_cashpresso_gateway_init() {
       add_action('wp_head', array($this, 'wc_cashpresso_checkout_js'));
       add_action('wp_footer', array($this, 'wc_cashpresso_refresh_js'));
 
-      add_filter('woocommerce_thankyou_order_received_text', array($this, 'wc_cashpresso_postcheckout_js'), 10, 2);
+      add_action('woocommerce_before_thankyou', array($this, 'wc_cashpresso_postcheckout_js'));
 
       add_filter('woocommerce_gateway_title', array($this, 'wc_cashpresso_add_banner'));
 
@@ -672,25 +669,36 @@ function wc_cashpresso_gateway_init() {
       }
     }
 
-    public function wc_cashpresso_postcheckout_js($str, $order) {
-      global $woocommerce;
-      if ($order->get_payment_method() == "cashpresso" && $order->get_status() == "pending") {
-
-        $purchaseId = $order->get_meta("purchaseId");
-        $newString = "<div id='instructions'>" . __('post-checkout-instructions', 'lnx-cashpresso-woocommerce');
-        $newString .= "<br/><br/>";
-        $newString .= '<script>function c2SuccessCallback(){ jQuery("#instructions").html("' . __("<p>Herzlichen Dank! Ihre Bezahlung wurde soeben freigegeben.</p>", "lnx-cashpresso-woocommerce") . '"); }</script><script id="c2PostCheckoutScript" type="text/javascript"
-		    src="https://my.cashpresso.com/ecommerce/v2/checkout/c2_ecom_post_checkout.all.min.js"
-		    defer
-		    data-c2-partnerApiKey="' . $this->getApiKey() . '"
-		    data-c2-purchaseId="' . $purchaseId . '"
-		    data-c2-mode="' . $this->getMode() . '"
-		    data-c2-successCallback="true"
-		    data-c2-locale="' . $this->getCurrentLanguage() . '">
-		  </script></div><br/>';
-        return $newString;
+    public function wc_cashpresso_postcheckout_js($orderID) {
+      if (empty($orderID)) {
+        return;
       }
-      return $str;
+
+      $order = wc_get_order($orderID);
+
+      if (empty($order)) {
+        return;
+      }
+
+      if ($order->get_payment_method() === "cashpresso" && $order->get_status() === "pending") {
+        $purchaseId = $order->get_meta("purchaseId"); ?>
+
+        <div id="instructions"><?php _e('post-checkout-instructions', 'lnx-cashpresso-woocommerce') ?>
+          <br><br>
+          <script>function c2SuccessCallback(){ jQuery("#instructions").html("<?php _e("<p>Herzlichen Dank! Ihre Bezahlung wurde soeben freigegeben.</p>", "lnx-cashpresso-woocommerce")  ?>"); }</script>
+          <script id="c2PostCheckoutScript" type="text/javascript"
+                  src="https://my.cashpresso.com/ecommerce/v2/checkout/c2_ecom_post_checkout.all.min.js"
+                  defer
+                  data-c2-partnerApiKey="<?php echo $this->getApiKey() ?>"
+                  data-c2-purchaseId="<?php echo $purchaseId ?>"
+                  data-c2-mode="<?php echo $this->getMode() ?>"
+                  data-c2-successCallback="true"
+                  data-c2-locale="<?php echo $this->getCurrentLanguage() ?>">
+          </script>
+        </div>
+        <br>
+
+      <?php }
     }
 
     public function wc_cashpresso_add_banner($str) {
