@@ -433,9 +433,9 @@ function wc_cashpresso_gateway_init() {
 
     public function getUrl() {
       if ($this->isLive()) {
-        return "https://backend.cashpresso.com/rest";
+        return "https://rest.cashpresso.com";
       }
-      return "https://test.cashpresso.com/rest";
+      return "https://backend.test-cashpresso.com";
     }
 
     public function getInterestFreeDaysMerchant() {
