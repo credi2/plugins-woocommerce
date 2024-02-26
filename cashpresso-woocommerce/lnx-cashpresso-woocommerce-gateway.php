@@ -14,11 +14,6 @@
  */
 defined('ABSPATH') or exit;
 
-// Make sure WooCommerce is active
-if (!in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
-  return;
-}
-
 /**
  * Add the gateway to WC Available Gateways
  *
@@ -30,8 +25,6 @@ function wc_cashpresso_add_to_gateways($gateways) {
   $gateways[] = 'WC_Gateway_Cashpresso';
   return $gateways;
 }
-
-add_filter('woocommerce_payment_gateways', 'wc_cashpresso_add_to_gateways');
 
 /**
  * Adds plugin page links
@@ -47,8 +40,6 @@ function wc_cashpresso_gateway_plugin_links($links) {
   return array_merge($plugin_links, $links);
 }
 
-add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'wc_cashpresso_gateway_plugin_links');
-
 function wc_cashpresso_gateway_init() {
 
   if (!class_exists('WC_Payment_Gateway')) {
@@ -58,6 +49,15 @@ function wc_cashpresso_gateway_init() {
   class WC_Gateway_Cashpresso extends WC_Payment_Gateway {
 
     protected $amount;
+
+    private $secretkey;
+    private $apikey;
+    private $modus;
+    private $validUntil;
+    private $boost;
+    private $interestFreeMaxDuration;
+    private $minPaybackAmount;
+    private $limitTotal;
 
     public function __construct() {
       $this->id = "cashpresso";
@@ -90,23 +90,21 @@ function wc_cashpresso_gateway_init() {
 
       $this->interestFreeMaxDuration = $this->get_option('interestFreeMaxDuration');
 
-      $this->instructions = __('post-checkout-instructions', 'lnx-cashpresso-woocommerce');
-
-
       $this->minPaybackAmount = $this->get_option('minPaybackAmount');
       $this->limitTotal = $this->get_option('limitTotal');
+
+      $this->init_settings();
 
       if (is_admin() || $this->isTimeForUpdate()) {
         $this->init_form_fields();
       }
-      $this->init_settings();
 
       add_action('woocommerce_api_wc_gateway_cashpresso', array($this, 'processCallback'));
 
       add_action('wp_head', array($this, 'wc_cashpresso_checkout_js'));
       add_action('wp_footer', array($this, 'wc_cashpresso_refresh_js'));
 
-      add_filter('woocommerce_thankyou_order_received_text', array($this, 'wc_cashpresso_postcheckout_js'), 10, 2);
+      add_action('woocommerce_before_thankyou', array($this, 'wc_cashpresso_postcheckout_js'));
 
       add_filter('woocommerce_gateway_title', array($this, 'wc_cashpresso_add_banner'));
 
@@ -119,43 +117,57 @@ function wc_cashpresso_gateway_init() {
       }
     }
 
-    public function validate_apikey_field($key) {
-      $value = $_POST['woocommerce_cashpresso_' . $key];
-      if (empty($value)) {
-        $value = $this->get_option("apikey");
-        echo __("<div class=\"error\"><p>" . __("<strong>ApiKey</strong> invalid. Not updated.") . "</p></div>", "lnx-cashpresso-woocommerce");
+    private function validateField($key, $value, $check, $message) {
+      if ($check) {
+        $value = $this->get_option($key);
+        \WC_Admin_Settings::add_error(
+          $message
+        );
       }
 
       return $value;
     }
 
-    public function validate_secretkey_field($key) {
-      $value = $_POST['woocommerce_cashpresso_' . $key];
-      if (empty($value)) {
-        $value = $this->get_option("secretkey");
-        echo __("<div class=\"error\"><p>" . __("<strong>SecretKey</strong> invalid. Not updated.") . "</p></div>", "lnx-cashpresso-woocommerce");
-      }
-
-      return $value;
+    public function validate_apikey_field($key, $value) {
+      return $this->validateField(
+        $key,
+        $value,
+        empty($value),
+        __('Error Api Key invalid. Not updated.', 'lnx-cashpresso-woocommerce')
+      );
     }
 
-    public function validate_validUntil_field($key) {
-      $value = $_POST['woocommerce_cashpresso_' . $key];
-      if (empty($value)) {
-        $value = $this->get_option("validUntil");
-        echo __("<div class=\"error\"><p>" . __("<strong>Period of Validity</strong> invalid. Not updated.") . "</p></div>", "lnx-cashpresso-woocommerce");
-
-      }
-      return $value;
+    public function validate_secretkey_field($key, $value) {
+      return $this->validateField(
+        $key,
+        $value,
+        empty($value),
+        __('Error: Secret Key invalid. Not updated.', 'lnx-cashpresso-woocommerce')
+      );
     }
 
-    public function validate_interestFreeDaysMerchant_field($key) {
-      $value = $_POST['woocommerce_cashpresso_' . $key];
-      if (isset($this->settings["interestFreeMaxDuration"]) && intval($value) > intval($this->settings["interestFreeMaxDuration"])) {
-        $value = $this->get_option("interestFreeDaysMerchant");
-        echo __("<div class=\"error\"><p>" . __("<strong>interest-free days</strong> invalid. Max Duration is set to: " . $this->settings["interestFreeMaxDuration"] . ". Not updated.") . "</p></div>", "lnx-cashpresso-woocommerce");
-      }
-      return $value;
+    public function validate_validUntil_field($key, $value) {
+      return $this->validateField(
+        $key,
+        $value,
+        empty($value),
+        __('Error: Period of Validity invalid. Not updated.', 'lnx-cashpresso-woocommerce')
+      );
+    }
+
+    public function validate_interestFreeDaysMerchant_field($key, $value) {
+      return $this->validateField(
+        $key,
+        $value,
+        empty($this->settings['interestFreeMaxDuration']) === false && (int)$value > (int)$this->settings['interestFreeMaxDuration'],
+        sprintf(
+          __(
+            'Error: Interest-free Days invalid. Max Duration is set to: %d. Not updated.',
+            'lnx-cashpresso-woocommerce'
+          ),
+          $this->settings['interestFreeMaxDuration']
+        )
+      );
     }
 
     public function do_eur_check() {
@@ -190,7 +202,7 @@ function wc_cashpresso_gateway_init() {
 
     public function processCallback() {
       $json = file_get_contents('php://input');
-      $data = json_decode($json);
+      $data = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
 
       if ($this->generateReceivingVerificationHash($this->getSecretKey(), $data->status, $data->referenceId, $data->usage) == $data->verificationHash) {
         $order_id = intval(substr($data->usage, 6));
@@ -208,7 +220,6 @@ function wc_cashpresso_gateway_init() {
             break;
           default:
             throw new Exception("Status not valid!");
-            break;
         }
         echo "OK";
       } else {
@@ -261,7 +272,6 @@ function wc_cashpresso_gateway_init() {
      * Add an array of fields to be displayed
      * on the gateway's settings screen.
      *
-     * @return string
      * @since  1.0.0
      */
     public function init_form_fields() {
@@ -291,10 +301,10 @@ function wc_cashpresso_gateway_init() {
           $this->settings["interestFreeMaxDuration"] = $obj["interestFreeMaxDuration"];
 
           $this->settings["partnerInfo"] = $data["body"];
-          $this->settings["partnerInfoTimestamp"] = strftime("%Y-%m-%d %H:%M:%S");
+          $this->settings["partnerInfoTimestamp"] = date('Y-m-d H:i:s');
 
-          if ($obj["interestFreeEnabled"] && isset($this->settings["interestFreeMaxDuration"]) &&
-            $this->getInterestFreeDaysMerchant() > intval($this->settings["interestFreeMaxDuration"])) {
+          if (empty($obj["interestFreeEnabled"]) === false && empty($this->settings["interestFreeMaxDuration"]) === false &&
+            $this->getInterestFreeDaysMerchant() > (int)$this->settings["interestFreeMaxDuration"]) {
             $this->settings["interestFreeDaysMerchant"] = $obj["interestFreeMaxDuration"];
           } elseif (!$obj["interestFreeEnabled"]) {
             $this->settings["interestFreeDaysMerchant"] = 0;
@@ -342,10 +352,9 @@ function wc_cashpresso_gateway_init() {
         'modus' => array(
           'title' => __(__('Modus'), 'lnx-cashpresso-woocommerce'),
           'type' => 'select',
-          'options' => [__("live"), __("test")],
-          'description' => __('k', 'lnx-cashpresso-woocommerce'),
+          'options' => [__("live", 'lnx-cashpresso-woocommerce'), __("test", 'lnx-cashpresso-woocommerce')],
           'description' => __('Die beiden Modi können nur mit den entsprechenden Zugangsdaten verwendet werden. Haben Sie z.B. Live-Zugangsdaten, so können Sie nur den Live-Modus verwenden. Um Sandboxing im Live-Modus zu de/aktivieren, wenden Sie sich bitte an cashpresso.', 'lnx-cashpresso-woocommerce'),
-          'default' => __('live', 'lnx-cashpresso-woocommerce'),
+          'default' => '0',
           'desc_tip' => true,
         ),
         'validUntil' => array(
@@ -358,17 +367,17 @@ function wc_cashpresso_gateway_init() {
         'productLevel' => array(
           'title' => __('cashpresso auf Produktebene', 'lnx-cashpresso-woocommerce'),
           'type' => 'select',
-          'options' => [__("deaktivieren"), __("dynamisch"), __("statisch")],
+          'options' => [__("deaktivieren", 'lnx-cashpresso-woocommerce'), __("dynamisch", 'lnx-cashpresso-woocommerce'), __("statisch", 'lnx-cashpresso-woocommerce')],
           'description' => __('Soll die Option der Ratenzahlung auf Produktebene angezeigt werden?', 'lnx-cashpresso-woocommerce'),
-          'default' => __('', 'lnx-cashpresso-woocommerce'),
+          'default' => '0',
           'desc_tip' => true,
         ),
         'productLabelLocation' => array(
           'title' => __('Platzierung auf Produktebene', 'lnx-cashpresso-woocommerce'),
           'type' => 'select',
-          'options' => [__("keine"), __("Produktseite"), __("Produktseite & Katalog")],
+          'options' => [__("keine", 'lnx-cashpresso-woocommerce'), __("Produktseite", 'lnx-cashpresso-woocommerce'), __("Produktseite & Katalog", 'lnx-cashpresso-woocommerce')],
           'description' => __('Wo soll es angezeigt werden?', 'lnx-cashpresso-woocommerce'),
-          'default' => __('', 'lnx-cashpresso-woocommerce'),
+          'default' => '0',
           'desc_tip' => true,
         ),
         'boost' => array(
@@ -376,11 +385,11 @@ function wc_cashpresso_gateway_init() {
           'type' => 'select',
           'description' => __('Schrift vergrößern', 'lnx-cashpresso-woocommerce'),
           'options' => ["80%", "100%", "120%"],
-          'default' => '100% Schriftgröße',
+          'default' => '1',
           'desc_tip' => true,
         ));
 
-      if ($this->settings["interestFreeEnabled"]) {
+      if (empty($this->settings["interestFreeEnabled"]) === false) {
         $fields['interestFreeDaysMerchant'] = array(
           'title' => __('Zinsfreie Tage', 'lnx-cashpresso-woocommerce'),
           'type' => 'number',
@@ -395,9 +404,12 @@ function wc_cashpresso_gateway_init() {
     }
 
     public function isTimeForUpdate() {
+      if (empty($this->settings['partnerInfoTimestamp'])) {
+        return false;
+      }
+
       $last_update = $this->settings["partnerInfoTimestamp"];
-      $day_in_seconds = 60 * 60 * 24;
-      return isset($last_update) && (time() - strtotime($last_update) > $day_in_seconds);
+      return isset($last_update) && (time() - strtotime($last_update) > DAY_IN_SECONDS);
     }
 
     public function isLive() {
@@ -421,16 +433,13 @@ function wc_cashpresso_gateway_init() {
 
     public function getUrl() {
       if ($this->isLive()) {
-        return "https://backend.cashpresso.com/rest";
+        return "https://rest.cashpresso.com";
       }
-      return "https://test.cashpresso.com/rest";
+      return "https://backend.test-cashpresso.com";
     }
 
     public function getInterestFreeDaysMerchant() {
-      if (!is_numeric($this->settings["interestFreeDaysMerchant"])) {
-        return intval($this->settings["interestFreeDaysMerchant"]);
-      }
-      return $this->settings["interestFreeDaysMerchant"];
+      return (int)$this->settings["interestFreeDaysMerchant"];
     }
 
     public function validate_fields() {
@@ -455,7 +464,7 @@ function wc_cashpresso_gateway_init() {
       $order->update_status('pending', __('Kunde muss sich noch verifizieren.', 'lnx-cashpresso-woocommerce'));
 
       // Reduce stock levels
-      $order->reduce_order_stock();
+      wc_reduce_stock_levels($order_id);
 
       // Remove cart
       WC()->cart->empty_cart();
@@ -464,15 +473,6 @@ function wc_cashpresso_gateway_init() {
         'result' => 'success',
         'redirect' => $this->get_return_url($order),
       );
-    }
-
-    /**
-     * Output for the order received page.
-     */
-    public function thankyou_page() {
-      if ($this->instructions) {
-        echo wpautop(wptexturize($this->instructions));
-      }
     }
 
     public function sendBuyRequest($order) {
@@ -682,25 +682,36 @@ function wc_cashpresso_gateway_init() {
       }
     }
 
-    public function wc_cashpresso_postcheckout_js($str, $order) {
-      global $woocommerce;
-      if ($order->get_payment_method() == "cashpresso" && $order->get_status() == "pending") {
-
-        $purchaseId = $order->get_meta("purchaseId");
-        $newString = "<div id='instructions'>" . __('post-checkout-instructions', 'lnx-cashpresso-woocommerce');
-        $newString .= "<br/><br/>";
-        $newString .= '<script>function c2SuccessCallback(){ jQuery("#instructions").html("' . __("<p>Herzlichen Dank! Ihre Bezahlung wurde soeben freigegeben.</p>", "lnx-cashpresso-woocommerce") . '"); }</script><script id="c2PostCheckoutScript" type="text/javascript"
-		    src="https://my.cashpresso.com/ecommerce/v2/checkout/c2_ecom_post_checkout.all.min.js"
-		    defer
-		    data-c2-partnerApiKey="' . $this->getApiKey() . '"
-		    data-c2-purchaseId="' . $purchaseId . '"
-		    data-c2-mode="' . $this->getMode() . '"
-		    data-c2-successCallback="true"
-		    data-c2-locale="' . $this->getCurrentLanguage() . '">
-		  </script></div><br/>';
-        return $newString;
+    public function wc_cashpresso_postcheckout_js($orderID) {
+      if (empty($orderID)) {
+        return;
       }
-      return $str;
+
+      $order = wc_get_order($orderID);
+
+      if (empty($order)) {
+        return;
+      }
+
+      if ($order->get_payment_method() === "cashpresso" && $order->get_status() === "pending") {
+        $purchaseId = $order->get_meta("purchaseId"); ?>
+
+        <div id="instructions"><?php _e('post-checkout-instructions', 'lnx-cashpresso-woocommerce') ?>
+          <br><br>
+          <script>function c2SuccessCallback(){ jQuery("#instructions").html("<?php _e("<p>Herzlichen Dank! Ihre Bezahlung wurde soeben freigegeben.</p>", "lnx-cashpresso-woocommerce")  ?>"); }</script>
+          <script id="c2PostCheckoutScript" type="text/javascript"
+                  src="https://my.cashpresso.com/ecommerce/v2/checkout/c2_ecom_post_checkout.all.min.js"
+                  defer
+                  data-c2-partnerApiKey="<?php echo $this->getApiKey() ?>"
+                  data-c2-purchaseId="<?php echo $purchaseId ?>"
+                  data-c2-mode="<?php echo $this->getMode() ?>"
+                  data-c2-successCallback="true"
+                  data-c2-locale="<?php echo $this->getCurrentLanguage() ?>">
+          </script>
+        </div>
+        <br>
+
+      <?php }
     }
 
     public function wc_cashpresso_add_banner($str) {
@@ -716,8 +727,6 @@ function wc_cashpresso_gateway_init() {
 
   // end \WC_Gateway_Offline class
 }
-
-add_action('plugins_loaded', 'wc_cashpresso_gateway_init', 11);
 
 function product_level_integration($price, $product = null) {
 
@@ -793,20 +802,23 @@ function product_level_integration($price, $product = null) {
 }
 
 function getStaticRate($price, $paybackRate, $minPaybackAmount) {
-  return min(floatval($price), max(floatval($minPaybackAmount), floatval($price * 0.01 * $paybackRate)));
+  return min(floatval($price), max(floatval($minPaybackAmount), $price * 0.01 * $paybackRate));
 }
-
-add_filter('woocommerce_get_price_html', 'product_level_integration', 10, 2);
 
 function wc_cashpresso_label_js() {
 
   $settings = get_option('woocommerce_cashpresso_settings');
 
-  if (is_cart() || is_checkout() || is_view_order_page() || $settings["productLabelLocation"] == "0" || $settings["productLevel"] == "0") {
+  if (
+    empty($settings)
+    || $settings['productLabelLocation'] === '0'
+    || $settings['productLevel'] === '0'
+    || is_cart()
+    || is_checkout()
+    || is_view_order_page()
+  ) {
     return;
   }
-
-  $product = wc_get_product();
 
   $locale = "en";
   if (get_bloginfo("language") == "de-DE") {
@@ -848,10 +860,19 @@ data-c2-locale="' . $locale . '" ></script>';
 		} )});</script>';
 }
 
-add_action('wp_head', 'wc_cashpresso_label_js');
-
 function plugin_init() {
+  // Make sure WooCommerce is active
+  if (!class_exists('WooCommerce')) {
+    return;
+  }
+
+  add_filter('woocommerce_payment_gateways', 'wc_cashpresso_add_to_gateways');
+  add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'wc_cashpresso_gateway_plugin_links');
+  add_filter('woocommerce_get_price_html', 'product_level_integration', 10, 2);
+  add_action('wp_head', 'wc_cashpresso_label_js');
+
   load_plugin_textdomain('lnx-cashpresso-woocommerce', false, dirname(plugin_basename(__FILE__)) . '/languages/');
 }
 
 add_action('plugins_loaded', 'plugin_init');
+add_action('plugins_loaded', 'wc_cashpresso_gateway_init', 11);
