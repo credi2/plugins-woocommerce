@@ -341,6 +341,7 @@ function wc_cashpresso_gateway_init() {
           'description' => __('Secret Key', 'lnx-cashpresso-woocommerce'),
           'default' => __('', 'lnx-cashpresso-woocommerce'),
           'desc_tip' => true,
+          'sanitize_callback' => [$this, 'sanitizeKey']
         ),
         'apikey' => array(
           'title' => __('Api Key', 'lnx-cashpresso-woocommerce'),
@@ -348,6 +349,7 @@ function wc_cashpresso_gateway_init() {
           'description' => __('Api Key', 'lnx-cashpresso-woocommerce'),
           'default' => __('', 'lnx-cashpresso-woocommerce'),
           'desc_tip' => true,
+          'sanitize_callback' => [$this, 'sanitizeKey']
         ),
         'modus' => array(
           'title' => __(__('Modus'), 'lnx-cashpresso-woocommerce'),
@@ -399,8 +401,11 @@ function wc_cashpresso_gateway_init() {
         );
       }
 
-
       $this->form_fields = $fields;
+    }
+
+    public function sanitizeKey(string $value): string {
+      return trim(wc_clean($value));
     }
 
     public function isTimeForUpdate() {
