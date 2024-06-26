@@ -341,6 +341,7 @@ function wc_cashpresso_gateway_init() {
           'description' => __('Secret Key', 'lnx-cashpresso-woocommerce'),
           'default' => __('', 'lnx-cashpresso-woocommerce'),
           'desc_tip' => true,
+          'sanitize_callback' => [$this, 'sanitizeKey']
         ),
         'apikey' => array(
           'title' => __('Api Key', 'lnx-cashpresso-woocommerce'),
@@ -348,6 +349,7 @@ function wc_cashpresso_gateway_init() {
           'description' => __('Api Key', 'lnx-cashpresso-woocommerce'),
           'default' => __('', 'lnx-cashpresso-woocommerce'),
           'desc_tip' => true,
+          'sanitize_callback' => [$this, 'sanitizeKey']
         ),
         'modus' => array(
           'title' => __(__('Modus'), 'lnx-cashpresso-woocommerce'),
@@ -399,8 +401,11 @@ function wc_cashpresso_gateway_init() {
         );
       }
 
-
       $this->form_fields = $fields;
+    }
+
+    public function sanitizeKey(string $value): string {
+      return trim(wc_clean($value));
     }
 
     public function isTimeForUpdate() {
@@ -729,72 +734,70 @@ function wc_cashpresso_gateway_init() {
 }
 
 function product_level_integration($price, $product = null) {
+  $settings = get_option('woocommerce_cashpresso_settings');
+
+  if ($settings['enabled'] !== 'yes') {
+    return $price;
+  }
+
+  if ($settings['productLabelLocation'] == 0) {
+    return $price;
+  }
+
+  if ($settings['productLabelLocation'] == 1 && !is_product()) {
+    return $price;
+  }
+
+  if (empty($settings['productLevel'])) {
+    return $price;
+  }
 
   if (empty($product)) {
     $product = wc_get_product();
   }
 
-  $pricevalue = wc_get_price_including_tax($product);
+  $size = '0.8em;';
+  $class = 'cashpresso_smaller';
 
-  $settings = get_option('woocommerce_cashpresso_settings');
-
-  if ($settings["productLabelLocation"] == 0) {
-    return $price;
+  if ($settings['boost'] == '1') {
+    $size = '1em;';
+    $class = 'cashpresso_normal';
+  } elseif ($settings['boost'] == '2') {
+    $size = '1.2em;';
+    $class = 'cashpresso_bigger';
   }
 
-  if ($settings["productLabelLocation"] == 1 && !is_product()) {
-    return $price;
-  }
-
-  if ($settings['enabled'] !== "yes") {
-    return $price;
-  }
+  $priceValue = wc_get_price_including_tax($product);
 
   $vat = "";
 
   if ($settings["productLevel"] == "1") {
+    $vat = sprintf (
+      '<div id="dynamic%d" class="c2-financing-label %s" data-c2-financing-amount="%.2f" style="font-size:%s"></div>',
+      mt_rand(),
+      $class,
+      $priceValue,
+      $size
+    );
 
-    $limitTotal = floatval($settings["limitTotal"]);
-    $minPaybackAmount = floatval($settings["minPaybackAmount"]);
+    wp_enqueue_script('cashpresso-dynamic');
+  } elseif ($settings["productLevel"] == "2") {
+    $limitTotal = (float)$settings["limitTotal"];
+    $minPaybackAmount = (float)$settings["minPaybackAmount"];
 
-    if ($pricevalue <= $limitTotal && $pricevalue >= $minPaybackAmount) {
-
-      $size = "0.8em;";
-      $class = "cashpresso_smaller";
-      if ($settings["boost"] == "1") {
-        $size = "1em;";
-        $class = "cashpresso_normal";
-      }
-      if ($settings["boost"] == "2") {
-        $size = "1.2em;";
-        $class = "cashpresso_bigger";
-      }
-      $vat = ' <div id="dynamic' . rand() . '" class="c2-financing-label ' . $class . '" data-c2-financing-amount="' . number_format($pricevalue, 2, ".", "") . '" style="font-size:' . $size . '"><a href"#" ></a></div>';
-    }
-  }
-
-  if ($settings["productLevel"] == "2") {
-
-    $limitTotal = floatval($settings["limitTotal"]);
-    $minPaybackAmount = floatval($settings["minPaybackAmount"]);
-
-    if ($pricevalue <= $limitTotal && $pricevalue >= $minPaybackAmount) {
-
-      $size = "0.8em;";
-      $class = "cashpresso_smaller";
-      if ($settings["boost"] == "1") {
-        $size = "1em;";
-        $class = "cashpresso_normal";
-      }
-      if ($settings["boost"] == "2") {
-        $size = "1.2em;";
-        $class = "cashpresso_bigger";
-      }
-
+    if ($priceValue <= $limitTotal && $priceValue >= $minPaybackAmount) {
       $paybackRate = $settings['paybackRate'];
-      $minPaybackAmount = $settings['minPaybackAmount'];
 
-      $vat = ' <div class="' . $class . '"><a href="#" style="font-size:' . $size . '" onclick="C2EcomWizard.startOverlayWizard(' . number_format($pricevalue, 2, ".", "") . ')"> ' . __("ab", "lnx-cashpresso-woocommerce") . ' ' . number_format(getStaticRate($pricevalue, $paybackRate, $minPaybackAmount), 2) . ' € / ' . __("Monat", "lnx-cashpresso-woocommerce") . '</a></div>';
+      $vat = sprintf('<div class="%s"><a href="#" style="font-size:%s" onclick="C2EcomWizard.startOverlayWizard(%.2f)">%s %s € / %s</a></div>',
+      $class,
+        $size,
+        $priceValue,
+        __("ab", "lnx-cashpresso-woocommerce"),
+        number_format(getStaticRate($priceValue, $paybackRate, $minPaybackAmount), 2, ',', '.'),
+        __("Monat", "lnx-cashpresso-woocommerce")
+      );
+
+      wp_enqueue_script('cashpresso-static');
     }
   }
 
@@ -811,8 +814,8 @@ function wc_cashpresso_label_js() {
 
   if (
     empty($settings)
-    || $settings['productLabelLocation'] === '0'
-    || $settings['productLevel'] === '0'
+    || empty($settings['productLabelLocation'])
+    || empty($settings['productLevel'])
     || is_cart()
     || is_checkout()
     || is_view_order_page()
@@ -820,10 +823,11 @@ function wc_cashpresso_label_js() {
     return;
   }
 
-  $locale = "en";
-  if (get_bloginfo("language") == "de-DE") {
-    $locale = "de";
+  $locale = 'en';
+  if (stripos(get_bloginfo('language'), 'de') === 0) {
+    $locale = 'de';
   }
+
   $interestFreeDaysMerchant = $settings["interestFreeDaysMerchant"];
 
   $apiKey = $settings["apikey"];
@@ -833,31 +837,37 @@ function wc_cashpresso_label_js() {
     $modus = "test";
   }
 
-  if ($settings["productLevel"] == "1") {
-    echo '<script id="c2LabelScript" type="text/javascript"
-src="https://my.cashpresso.com/ecommerce/v2/label/c2_ecom_wizard.all.min.js"
-defer
-data-c2-partnerApiKey="' . $apiKey . '"
-data-c2-interestFreeDaysMerchant="' . $interestFreeDaysMerchant . '"
-data-c2-mode="' . $modus . '"
-data-c2-locale="' . $locale . '" ></script>';
-  }
-  if ($settings["productLevel"] == "2") {
-    echo '<script id="c2StaticLabelScript" type="text/javascript"
-src="https://my.cashpresso.com/ecommerce/v2/label/c2_ecom_wizard_static.all.min.js"
-defer
-data-c2-partnerApiKey="' . $apiKey . '"
-data-c2-interestFreeDaysMerchant="' . $interestFreeDaysMerchant . '"
-data-c2-mode="' . $modus . '"
-data-c2-locale="' . $locale . '" ></script>';
-  }
-
-  echo '<script>jQuery(document).ready(function() {
-		jQuery( ".single_variation_wrap" ).on( "show_variation", function ( event, variation ) {
-		    if (window.C2EcomWizard) {
-		      window.C2EcomWizard.refreshAmount("dynamic", variation.display_price.toFixed(2) );
-		    }
-		} )});</script>';
+  add_filter('script_loader_tag', static function($tag, $handle, $src) use ($apiKey, $interestFreeDaysMerchant, $modus, $locale) {
+    if ($handle === 'cashpresso-dynamic') {
+      $tag = /** @lang HTML*/ <<<SCRIPT
+<script id="c2LabelScript"
+        type="text/javascript"
+        src="$src"
+        defer
+        async
+        data-c2-partnerApiKey="$apiKey"
+        data-c2-interestFreeDaysMerchant="$interestFreeDaysMerchant"
+        data-c2-mode="$modus"
+        data-c2-locale="$locale"
+></script>
+SCRIPT;
+    } elseif ($handle === 'cashpresso-static') {
+      $tag = /** @lang HTML */ <<<SCRIPT
+<script id="c2StaticLabelScript"
+        type="text/javascript"
+        src="$src"
+        defer
+        async
+        data-c2-partnerApiKey="$apiKey"
+        data-c2-interestFreeDaysMerchant="$interestFreeDaysMerchant"
+        data-c2-mode="$modus"
+        data-c2-locale="$locale"
+></script>
+SCRIPT;
+    }
+    
+    return $tag;
+  }, 10, 3);
 }
 
 function plugin_init() {
@@ -865,6 +875,13 @@ function plugin_init() {
   if (!class_exists('WooCommerce')) {
     return;
   }
+
+  add_action('wp_enqueue_scripts', function () {
+    wp_register_script('cashpresso-dynamic', 'https://my.cashpresso.com/ecommerce/v2/label/c2_ecom_wizard.all.min.js', ['cashpresso-dynamic-variable'], null, true);
+    wp_register_script('cashpresso-dynamic-variable', plugins_url('assets/variable.js', __FILE__), ['jquery'], null, true);
+
+    wp_register_script('cashpresso-static', 'https://my.cashpresso.com/ecommerce/v2/label/c2_ecom_wizard_static.all.min.js', [], null, true);
+  });
 
   add_filter('woocommerce_payment_gateways', 'wc_cashpresso_add_to_gateways');
   add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'wc_cashpresso_gateway_plugin_links');
