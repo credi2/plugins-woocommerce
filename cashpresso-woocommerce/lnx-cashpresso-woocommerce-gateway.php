@@ -78,7 +78,7 @@ function wc_cashpresso_gateway_init() {
       }
 
       $this->title = $this->get_option('title');
-      $this->description = __($this->get_option('description'), 'lnx-cashpresso-woocommerce') . '<p>&nbsp;</p><input type="hidden" id="cashpressoToken" name="cashpressoToken"><div id="cashpresso-checkout"></div><script type="text/javascript"> //document.addEventListener("DOMContentLoaded", function(event) { if (window.C2EcomCheckout) { window.C2EcomCheckout.refresh( ); } //});</script>';
+      $this->description = __($this->get_option('description'), 'lnx-cashpresso-woocommerce');
 
       $this->secretkey = $this->get_option('secretkey');
       $this->apikey = $this->get_option('apikey');
@@ -115,6 +115,16 @@ function wc_cashpresso_gateway_init() {
       if (is_admin()) {
         add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
       }
+    }
+
+    public function payment_fields() {
+      parent::payment_fields();
+
+      if (is_checkout()) { ?>
+        <p>&nbsp;</p>
+        <input type="hidden" id="cashpressoToken" name="cashpressoToken">
+        <div id="cashpresso-checkout"></div>
+      <?php }
     }
 
     private function validateField($key, $value, $check, $message) {
