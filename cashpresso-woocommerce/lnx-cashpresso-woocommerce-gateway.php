@@ -614,7 +614,9 @@ function wc_cashpresso_gateway_init() {
     }
 
     public function wc_cashpresso_checkout_js() {
-      global $woocommerce;
+      if ($this->enabled !== 'yes') {
+        return;
+      }
 
       $amount = $this->amount;
 
@@ -643,7 +645,9 @@ function wc_cashpresso_gateway_init() {
     }
 
     public function wc_cashpresso_refresh_js() {
-      global $woocommerce;
+      if ($this->enabled !== 'yes') {
+        return;
+      }
 
       if (is_checkout() && !is_wc_endpoint_url('order-received') && !is_wc_endpoint_url('view-order')) {
 
@@ -698,7 +702,7 @@ function wc_cashpresso_gateway_init() {
     }
 
     public function wc_cashpresso_postcheckout_js($orderID) {
-      if (empty($orderID)) {
+      if ($this->enabled !== 'yes' || empty($orderID)) {
         return;
       }
 
@@ -828,6 +832,9 @@ function wc_cashpresso_label_js() {
 
   if (
     empty($settings)
+    || !is_array($settings)
+    || empty($settings['enabled'])
+    || $settings['enabled'] !== 'yes'
     || empty($settings['productLabelLocation'])
     || empty($settings['productLevel'])
     || is_cart()
