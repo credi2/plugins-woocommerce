@@ -746,6 +746,10 @@ function wc_cashpresso_gateway_init() {
 function product_level_integration($price, $product = null) {
   $settings = get_option('woocommerce_cashpresso_settings');
 
+  if (empty($settings) || !is_array($settings)) {
+    return $price;
+  }
+
   if ($settings['enabled'] !== 'yes') {
     return $price;
   }
