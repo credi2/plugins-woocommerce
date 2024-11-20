@@ -204,9 +204,10 @@ function wc_cashpresso_gateway_init() {
     }
 
     public function getCurrentLanguage() {
-      if (get_bloginfo("language") == "de-DE") {
+      if (preg_match('/^de($|-.+)/i', get_bloginfo("language"))) {
         return "de";
       }
+
       return "en";
     }
 
