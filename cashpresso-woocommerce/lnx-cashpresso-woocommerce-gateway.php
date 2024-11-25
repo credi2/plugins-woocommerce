@@ -3,7 +3,7 @@
  * Plugin Name: WooCommerce cashpresso Payment Gateway
  * Plugin URI: https://www.cashpresso.com/de/i/business
  * Description: A payment gateway for cashpresso instalment payments.
- * Version: 1.1.6
+ * Version: 1.1.7
  * Author: Credi2 GmbH | cashpresso
  * Author URI: https://www.cashpresso.com/de/i/business
  * Copyright: © 2021 Credi2 GmbH.
