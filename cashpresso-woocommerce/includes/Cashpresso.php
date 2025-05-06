@@ -70,6 +70,7 @@ class Cashpresso extends WC_Payment_Gateway {
     if (is_checkout()) { ?>
       <p>&nbsp;</p>
       <input type="hidden" id="cashpressoToken" name="cashpressoToken">
+      <input type="hidden" id="cashpressoAmount" name="cashpressoAmount" value="<?php esc_attr_e(WC()->cart->get_total('edit')); ?>">
       <div id="cashpresso-checkout"></div>
     <?php }
   }
@@ -420,9 +421,12 @@ class Cashpresso extends WC_Payment_Gateway {
   }
 
   public function validate_fields() {
-    // WooCommerce checkout block || WooCommerce shortcode checkout
-    if (isset($_POST['cashpressotoken']) || isset($_POST['cashpressoToken'])) {
-      return true;
+    $keys = ['cashpressotoken', 'cashpressoToken'];
+
+    foreach ($keys as $key) {
+      if (!empty($_POST[$key])) {
+        return true;
+      }
     }
 
     wc_add_notice(__('Bitte wähle deine Rate aus.', 'lnx-cashpresso-woocommerce'), 'error');
@@ -661,7 +665,10 @@ TAG;
       <script>
         jQuery(document.body)
           .on('updated_checkout', function() {
-            if(C2EcomCheckout /*&&  window.location.href == "<?php echo wc_get_checkout_url(); ?>" */) {
+            const checkoutForm = document.querySelector('form.woocommerce-checkout'),
+              paymentMethod = checkoutForm ? new FormData(checkoutForm).get('payment_method') : null;
+
+            if (paymentMethod === 'cashpresso' && C2EcomCheckout) {
               C2EcomCheckout.refreshOptionalData({
                 "email": jQuery("#billing_email").val(),
                 "given": jQuery("#billing_first_name").val(),
@@ -673,24 +680,15 @@ TAG;
                 "phone": jQuery("#billing_phone").val()
               });
 
-              let refreshAmount = jQuery("#wc_cashpresso_refresh_amount").val();
+              let refreshAmount = jQuery("#cashpressoAmount").val();
 
               if (!isNaN(refreshAmount)) {
                 refreshAmount = parseFloat(refreshAmount);
               }
 
-              if (refreshAmount) {
-                C2EcomCheckout.refresh(refreshAmount);
-              }
+              C2EcomCheckout.refresh(refreshAmount);
             }
-          }).on('payment_method_selected', function () {
-          const checkoutForm =  document.querySelector('form.woocommerce-checkout'),
-            paymentMethod = checkoutForm ? new FormData(checkoutForm).get('payment_method') : null;
-
-          if (paymentMethod === 'cashpresso') {
-            C2EcomCheckout.init();
-          }
-        });
+          });
       </script><?php
     }
   }
