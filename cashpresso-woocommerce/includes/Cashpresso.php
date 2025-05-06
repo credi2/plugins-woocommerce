@@ -58,6 +58,14 @@ class Cashpresso extends WC_Payment_Gateway {
     add_action('admin_notices', array($this, 'do_ssl_check'));
     add_action('admin_notices', array($this, 'do_eur_check'));
 
+    add_filter('woocommerce_my_account_my_orders_actions', function($actions, $order) {
+      if ($order->get_payment_method() === $this->id) {
+        unset($actions['pay']);
+      }
+
+      return $actions;
+    }, 10, 2);
+
     // Save settings
     if (is_admin()) {
       add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
