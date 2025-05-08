@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2018-06-27 11:53+0200\n"
-"PO-Revision-Date: 2018-06-27 11:53+0200\n"
+"PO-Revision-Date: 2025-04-11 17:10+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: de_DE\n"
@@ -13,6 +13,7 @@ msgstr ""
 "X-Poedit-Basepath: ..\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-KeywordsList: __\n"
+"X-Domain: lnx-cashpresso-woocommerce\n"
 "X-Poedit-SearchPath-0: lnx-cashpresso-woocommerce-gateway.php\n"
 
 #: lnx-cashpresso-woocommerce-gateway.php:50
@@ -25,12 +26,8 @@ msgstr "cashpresso Ratenkauf"
 
 #: lnx-cashpresso-woocommerce-gateway.php:91
 #: lnx-cashpresso-woocommerce-gateway.php:265
-msgid ""
-"cashpresso ermöglicht dir Einkäufe in Raten zu bezahlen. Deine Ratenhöhe "
-"kannst du dir beim Kauf aussuchen und später jederzeit ändern."
-msgstr ""
-"cashpresso ermöglicht dir Einkäufe in Raten zu bezahlen. Deine Ratenhöhe "
-"kannst du dir beim Kauf aussuchen und später jederzeit ändern."
+msgid "cashpresso ermöglicht dir Einkäufe in Raten zu bezahlen. Deine Ratenhöhe kannst du dir beim Kauf aussuchen und später jederzeit ändern."
+msgstr "cashpresso ermöglicht dir Einkäufe in Raten zu bezahlen. Deine Ratenhöhe kannst du dir beim Kauf aussuchen und später jederzeit ändern."
 
 #: lnx-cashpresso-woocommerce-gateway.php:70
 msgid "cashpresso ermöglicht es Ihren Kunden den Einkauf in Raten zu bezahlen."
@@ -39,28 +36,23 @@ msgstr "cashpresso ermöglicht es Ihren Kunden den Einkauf in Raten zu bezahlen.
 #: lnx-cashpresso-woocommerce-gateway.php:141
 #, php-format
 msgid ""
-"<strong>%s</strong> wurde deaktiviert, da WooCommerce nicht EUR als Währung "
-"eingestellt hat. Bitte stellen Sie EUR als Währung ein und aktivieren Sie "
+"<strong>%s</strong> wurde deaktiviert, da WooCommerce nicht EUR als Währung eingestellt hat. Bitte stellen Sie EUR als Währung ein und aktivieren Sie "
 "die Zahlungsmethode anschlie&szlig;end <a href=\"%s\">hier wieder.</a>"
 msgstr ""
-"<strong>%s</strong> wurde deaktiviert, da WooCommerce nicht EUR als Währung "
-"eingestellt hat. Bitte stellen Sie EUR als Währung ein und aktivieren Sie "
+"<strong>%s</strong> wurde deaktiviert, da WooCommerce nicht EUR als Währung eingestellt hat. Bitte stellen Sie EUR als Währung ein und aktivieren Sie "
 "die Zahlungsmethode anschlie&szlig;end <a href=\"%s\">hier wieder.</a>"
 
-#: lnx-cashpresso-woocommerce-gateway.php:141
-#: lnx-cashpresso-woocommerce-gateway.php:153
+#: lnx-cashpresso-woocommerce-gateway.php:141 lnx-cashpresso-woocommerce-gateway.php:153
 msgid "<div class=\"error\"><p>"
 msgstr "<div class=\"error\"><p>"
 
 #: lnx-cashpresso-woocommerce-gateway.php:153
 #, php-format
 msgid ""
-"<strong>%s</strong> wurde deaktiviert, da WooCommerce kein SSL Zertifikat "
-"auf der Bezahlseite verlangt. Bitte erwerben und installieren Sie ein "
+"<strong>%s</strong> wurde deaktiviert, da WooCommerce kein SSL Zertifikat auf der Bezahlseite verlangt. Bitte erwerben und installieren Sie ein "
 "gültiges SSL Zertifikat  und richten Sie es <a href=\"%s\">es hier ein.</a>"
 msgstr ""
-"<strong>%s</strong> wurde deaktiviert, da WooCommerce kein SSL Zertifikat "
-"auf der Bezahlseite verlangt. Bitte erwerben und installieren Sie ein "
+"<strong>%s</strong> wurde deaktiviert, da WooCommerce kein SSL Zertifikat auf der Bezahlseite verlangt. Bitte erwerben und installieren Sie ein "
 "gültiges SSL Zertifikat  und richten Sie es <a href=\"%s\">es hier ein.</a>"
 
 #: lnx-cashpresso-woocommerce-gateway.php:249
@@ -101,16 +93,15 @@ msgstr "Weitere Schritte für die Danke Seite bzw. E-Mails"
 
 #: lnx-cashpresso-woocommerce-gateway.php:272
 msgid "post-checkout-instructions"
-msgstr "Schließe deine Bestellung ab indem du deinen Einkauf mit cashpresso bezahlst."
-"Durch Klick auf \"Jetzt bezahlen\" öffnet sich ein Fenster und du kannst den Ratenkauf mit cashpresso abschließen."
+msgstr ""
+"Schließe deine Bestellung ab indem du deinen Einkauf mit cashpresso bezahlst.Durch Klick auf \"Jetzt bezahlen\" öffnet sich ein Fenster und du kannst "
+"den Ratenkauf mit cashpresso abschließen."
 
-#: lnx-cashpresso-woocommerce-gateway.php:301
-#: lnx-cashpresso-woocommerce-gateway.php:303
+#: lnx-cashpresso-woocommerce-gateway.php:301 lnx-cashpresso-woocommerce-gateway.php:303
 msgid "LIVE SecretKey"
 msgstr "LIVE SecretKey"
 
-#: lnx-cashpresso-woocommerce-gateway.php:308
-#: lnx-cashpresso-woocommerce-gateway.php:310
+#: lnx-cashpresso-woocommerce-gateway.php:308 lnx-cashpresso-woocommerce-gateway.php:310
 msgid "LIVE PartnerApiKey"
 msgstr "LIVE PartnerApiKey"
 
@@ -119,12 +110,12 @@ msgid "LIVE Modus aktivieren?"
 msgstr "LIVE Modus aktivieren?"
 
 #: lnx-cashpresso-woocommerce-gateway.php:326
-msgid "Die beiden Modi können nur mit den entsprechenden Zugangsdaten verwendet werden. "
-"Haben Sie z.B. Live-Zugangsdaten, so können Sie nur den Live-Modus verwenden. "
-"Um Sandboxing im Live-Modus zu de/aktivieren, wenden Sie sich bitte an cashpresso."
-msgstr "Die beiden Modi können nur mit den entsprechenden Zugangsdaten verwendet werden. "
-"Haben Sie z.B. Live-Zugangsdaten, so können Sie nur den Live-Modus verwenden. "
-"Um Sandboxing im Live-Modus zu de/aktivieren, wenden Sie sich bitte an cashpresso."
+msgid ""
+"Die beiden Modi können nur mit den entsprechenden Zugangsdaten verwendet werden. Haben Sie z.B. Live-Zugangsdaten, so können Sie nur den Live-Modus "
+"verwenden. Um Sandboxing im Live-Modus zu de/aktivieren, wenden Sie sich bitte an cashpresso."
+msgstr ""
+"Die beiden Modi können nur mit den entsprechenden Zugangsdaten verwendet werden. Haben Sie z.B. Live-Zugangsdaten, so können Sie nur den Live-Modus "
+"verwenden. Um Sandboxing im Live-Modus zu de/aktivieren, wenden Sie sich bitte an cashpresso."
 
 #: lnx-cashpresso-woocommerce-gateway.php:331
 msgid "Direct checkout"
@@ -139,12 +130,8 @@ msgid "Gültigkeitsdauer"
 msgstr "Gültigkeitsdauer"
 
 #: lnx-cashpresso-woocommerce-gateway.php:349
-msgid ""
-"Wie lange kann der Käufer den Prozess bei cashpresso abschließen. Sie müssen "
-"solange die Ware vorhalten. (Angabe in Stunden)."
-msgstr ""
-"Wie lange kann der Käufer den Prozess bei cashpresso abschließen. Sie müssen "
-"solange die Ware vorhalten. (Angabe in Stunden)."
+msgid "Wie lange kann der Käufer den Prozess bei cashpresso abschließen. Sie müssen solange die Ware vorhalten. (Angabe in Stunden)."
+msgstr "Wie lange kann der Käufer den Prozess bei cashpresso abschließen. Sie müssen solange die Ware vorhalten. (Angabe in Stunden)."
 
 #: lnx-cashpresso-woocommerce-gateway.php:354
 msgid "cashpresso auf Produktebene"
@@ -195,12 +182,8 @@ msgid "Zinsfreie Tage"
 msgstr "Zinsfreie Tage"
 
 #: lnx-cashpresso-woocommerce-gateway.php:397
-msgid ""
-"Zinsfreie Tage. Nur möglich wenn das Feature für diesen Account von "
-"cashpresso freigegeben wurde."
-msgstr ""
-"Zinsfreie Tage. Nur möglich wenn das Feature für diesen Account von "
-"cashpresso freigegeben wurde."
+msgid "Zinsfreie Tage. Nur möglich wenn das Feature für diesen Account von cashpresso freigegeben wurde."
+msgstr "Zinsfreie Tage. Nur möglich wenn das Feature für diesen Account von cashpresso freigegeben wurde."
 
 #: lnx-cashpresso-woocommerce-gateway.php:454
 msgid "Kunde muss sich noch verifizieren."
@@ -223,7 +206,7 @@ msgid "Monat"
 msgstr "Monat"
 
 msgid "cashpresso Ratenkauf: Ein Fehler ist aufgetreten, bitte wende dich an <a href=\"mailto:support@cashpresso.com\">support@cashpresso.com</a>"
-msgstr "cashpresso Financing: An error occurred, please get in touch with us at <a href=\"mailto:support@cashpresso.com\">support@cashpresso.com</a>"
+msgstr "cashpresso Ratenkauf: Ein Fehler ist aufgetreten, bitte wende dich an <a href=\"mailto:support@cashpresso.com\">support@cashpresso.com</a>"
 
 msgid "cashpresso Ratenkauf: Du hast bereits einen cashpresso Account. Bitte klicke auf Raten ändern und log dich erneut mit deiner E-Mail Adresse an."
-msgstr "cashpresso Financing: You already have an account. Please click on 'Choose instalments', sign out and sign in again with your email address."
+msgstr "cashpresso Ratenkauf: Du hast bereits einen cashpresso Account. Bitte klicke auf Raten ändern und log dich erneut mit deiner E-Mail Adresse an."

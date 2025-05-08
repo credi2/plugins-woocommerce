@@ -14,6 +14,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-KeywordsList: __\n"
 "X-Poedit-SearchPath-0: lnx-cashpresso-woocommerce-gateway.php\n"
+"X-Domain: lnx-cashpresso-woocommerce\n"
 
 #: lnx-cashpresso-woocommerce-gateway.php:50
 msgid "Einstellungen"
