@@ -6,7 +6,7 @@
  * Version: 1.1.8
  * Author: Credi2 GmbH | cashpresso
  * Author URI: https://www.cashpresso.com/de/i/business
- * Copyright: © 2021 Credi2 GmbH.
+ * Copyright: © 2025 Credi2 GmbH.
  * License: GNU General Public License v3.0
  * License URI: http://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain: lnx-cashpresso-woocommerce
