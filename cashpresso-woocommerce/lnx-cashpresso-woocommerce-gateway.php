@@ -3,7 +3,7 @@
  * Plugin Name: WooCommerce cashpresso Payment Gateway
  * Plugin URI: https://www.cashpresso.com/de/i/business
  * Description: A payment gateway for cashpresso instalment payments.
- * Version: 1.1.8
+ * Version: 1.2.0
  * Author: Credi2 GmbH | cashpresso
  * Author URI: https://www.cashpresso.com/de/i/business
  * Copyright: © 2025 Credi2 GmbH.
@@ -80,6 +80,10 @@ function cashpresso_product_level_integration($price, $product = null) {
     $product = wc_get_product();
   }
 
+  if (apply_filters('cashpresso-add-product-level-integration', true, $product, $price) === false) {
+    return $price;
+  }
+
   $size = '0.8em;';
   $class = 'cashpresso_smaller';
 
@@ -93,31 +97,44 @@ function cashpresso_product_level_integration($price, $product = null) {
 
   $priceValue = wc_get_price_including_tax($product);
 
-  $vat = "";
+  $label = "";
 
-  if ($settings["productLevel"] == "1") {
-    $vat = sprintf (
+  $isDynamicIntegration = $settings["productLevel"] == "1";
+  $isStaticIntegration = $settings["productLevel"] == "2";
+
+  if ($isDynamicIntegration) {
+    $args = apply_filters('cashpresso-product-integration-label-args-dynamic', [
+      'class' => $class,
+      'priceValue' => $priceValue,
+    ], $product);
+
+    $label = sprintf (
       '<div id="dynamic%d" class="c2-financing-label %s" data-c2-financing-amount="%.2f" style="font-size:%s"></div>',
       mt_rand(),
-      $class,
-      $priceValue,
+      $args['class'] ?? '',
+      $args['priceValue'] ?? '',
       $size
     );
 
     wp_enqueue_script('cashpresso-dynamic');
-  } elseif ($settings["productLevel"] == "2") {
+  } elseif ($isStaticIntegration) {
     $limitTotal = (float)$settings["limitTotal"];
     $minPaybackAmount = (float)$settings["minPaybackAmount"];
 
     if ($priceValue <= $limitTotal && $priceValue >= $minPaybackAmount) {
       $paybackRate = $settings['paybackRate'];
 
-      $vat = sprintf('<div class="%s"><a href="#" style="font-size:%s" onclick="C2EcomWizard.startOverlayWizard(%.2f)">%s %s € / %s</a></div>',
-      $class,
+      $args = apply_filters('cashpresso-product-integration-label-args-static', [
+        'class' => $class,
+        'priceValue' => $priceValue,
+      ], $product);
+
+      $label = sprintf('<div class="%s"><a href="#" style="font-size:%s" onclick="C2EcomWizard.startOverlayWizard(%.2f)">%s %s € / %s</a></div>',
+        $args['class'] ?? '',
         $size,
-        $priceValue,
+        $args['priceValue'] ?? '',
         __("ab", "lnx-cashpresso-woocommerce"),
-        number_format(cashpresso_get_static_rate($priceValue, $paybackRate, $minPaybackAmount), 2, ',', '.'),
+        number_format(cashpresso_get_static_rate($args['priceValue'] ?? '', $paybackRate, $minPaybackAmount), 2, ',', '.'),
         __("Monat", "lnx-cashpresso-woocommerce")
       );
 
@@ -125,7 +142,13 @@ function cashpresso_product_level_integration($price, $product = null) {
     }
   }
 
-  return $price . $vat;
+  $label = apply_filters('cashpresso-product-integration-label', $label, $product, $isDynamicIntegration);
+
+  if (apply_filters('cashpresso-product-integration-label-after-price', true, $product, $isDynamicIntegration)) {
+    return $price . $label;
+  }
+
+  return $label . $price;
 }
 
 function cashpresso_get_static_rate($price, $paybackRate, $minPaybackAmount) {
