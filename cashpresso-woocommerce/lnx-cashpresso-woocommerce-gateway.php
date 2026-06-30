@@ -3,7 +3,7 @@
  * Plugin Name: WooCommerce cashpresso Payment Gateway
  * Plugin URI: https://www.cashpresso.com/de/i/business
  * Description: A payment gateway for cashpresso instalment payments.
- * Version: 1.2.0
+ * Version: 1.3.0
  * Author: Credi2 GmbH | cashpresso
  * Author URI: https://www.cashpresso.com/de/i/business
  * Copyright: © 2025 Credi2 GmbH.
@@ -53,6 +53,100 @@ function cashpresso_gateway_init() {
   }
 }
 
+/**
+ * Price (incl. tax) for the financing label; cheapest variation for variable products.
+ *
+ * @param WC_Product $product
+ * @return float
+ */
+function cashpresso_get_product_price_value($product) {
+  if ($product->is_type('variable')) {
+    $prices = $product->get_variation_prices(true);
+
+    if (!empty($prices['price'])) {
+      $variation_ids = array_keys($prices['price']);
+      $variation = wc_get_product(reset($variation_ids));
+
+      if ($variation) {
+        return wc_get_price_including_tax($variation);
+      }
+    }
+  }
+
+  return wc_get_price_including_tax($product);
+}
+
+/**
+ * Build the financing label markup and enqueue the matching remote script.
+ * Shared by the price-html filter and the product-label block render.
+ *
+ * @param WC_Product $product
+ * @param array $settings woocommerce_cashpresso_settings
+ * @return string label HTML
+ */
+function cashpresso_build_label_html($product, array $settings) {
+  $size = '0.8em;';
+  $class = 'cashpresso_smaller';
+
+  if ($settings['boost'] == '1') {
+    $size = '1em;';
+    $class = 'cashpresso_normal';
+  } elseif ($settings['boost'] == '2') {
+    $size = '1.2em;';
+    $class = 'cashpresso_bigger';
+  }
+
+  $priceValue = cashpresso_get_product_price_value($product);
+
+  $label = "";
+
+  $isDynamicIntegration = $settings["productLevel"] == "1";
+  $isStaticIntegration = $settings["productLevel"] == "2";
+
+  if ($isDynamicIntegration) {
+    $args = apply_filters('cashpresso-product-integration-label-args-dynamic', [
+      'class' => $class,
+      'priceValue' => $priceValue,
+    ], $product);
+
+    $label = sprintf (
+      '<div id="%s" class="c2-financing-label %s" data-c2-financing-amount="%.2f" style="font-size:%s"></div>',
+      esc_attr(wp_unique_id('cashpresso-dynamic-')),
+      $args['class'] ?? '',
+      $args['priceValue'] ?? '',
+      $size
+    );
+
+    wp_enqueue_script('cashpresso-dynamic');
+  } elseif ($isStaticIntegration) {
+    $limitTotal = (float)$settings["limitTotal"];
+    $minPaybackAmount = (float)$settings["minPaybackAmount"];
+
+    if ($priceValue <= $limitTotal && $priceValue >= $minPaybackAmount) {
+      $paybackRate = $settings['paybackRate'];
+
+      $args = apply_filters('cashpresso-product-integration-label-args-static', [
+        'class' => $class,
+        'priceValue' => $priceValue,
+      ], $product);
+
+      $label = sprintf('<div class="%s"><a href="#" style="font-size:%s" onclick="C2EcomWizard.startOverlayWizard(%.2f)" data-price="%.2f">%s %s € / %s</a></div>',
+        $args['class'] ?? '',
+        $size,
+        $args['priceValue'] ?? '',
+        $args['priceValue'] ?? '',
+        __("ab", "lnx-cashpresso-woocommerce"),
+        number_format(cashpresso_get_static_rate($args['priceValue'] ?? '', $paybackRate, $minPaybackAmount), 2, ',', '.'),
+        __("Monat", "lnx-cashpresso-woocommerce")
+      );
+
+      wp_enqueue_script('cashpresso-static');
+    }
+  }
+
+  return apply_filters('cashpresso-product-integration-label', $label, $product, $isDynamicIntegration);
+}
+
 function cashpresso_product_level_integration($price, $product = null) {
   $settings = get_option('woocommerce_cashpresso_settings');
 
@@ -84,65 +178,9 @@ function cashpresso_product_level_integration($price, $product = null) {
     return $price;
   }
 
-  $size = '0.8em;';
-  $class = 'cashpresso_smaller';
-
-  if ($settings['boost'] == '1') {
-    $size = '1em;';
-    $class = 'cashpresso_normal';
-  } elseif ($settings['boost'] == '2') {
-    $size = '1.2em;';
-    $class = 'cashpresso_bigger';
-  }
-
-  $priceValue = wc_get_price_including_tax($product);
-
-  $label = "";
+  $label = cashpresso_build_label_html($product, $settings);
 
   $isDynamicIntegration = $settings["productLevel"] == "1";
-  $isStaticIntegration = $settings["productLevel"] == "2";
-
-  if ($isDynamicIntegration) {
-    $args = apply_filters('cashpresso-product-integration-label-args-dynamic', [
-      'class' => $class,
-      'priceValue' => $priceValue,
-    ], $product);
-
-    $label = sprintf (
-      '<div id="dynamic%d" class="c2-financing-label %s" data-c2-financing-amount="%.2f" style="font-size:%s"></div>',
-      mt_rand(),
-      $args['class'] ?? '',
-      $args['priceValue'] ?? '',
-      $size
-    );
-
-    wp_enqueue_script('cashpresso-dynamic');
-  } elseif ($isStaticIntegration) {
-    $limitTotal = (float)$settings["limitTotal"];
-    $minPaybackAmount = (float)$settings["minPaybackAmount"];
-
-    if ($priceValue <= $limitTotal && $priceValue >= $minPaybackAmount) {
-      $paybackRate = $settings['paybackRate'];
-
-      $args = apply_filters('cashpresso-product-integration-label-args-static', [
-        'class' => $class,
-        'priceValue' => $priceValue,
-      ], $product);
-
-      $label = sprintf('<div class="%s"><a href="#" style="font-size:%s" onclick="C2EcomWizard.startOverlayWizard(%.2f)">%s %s € / %s</a></div>',
-        $args['class'] ?? '',
-        $size,
-        $args['priceValue'] ?? '',
-        __("ab", "lnx-cashpresso-woocommerce"),
-        number_format(cashpresso_get_static_rate($args['priceValue'] ?? '', $paybackRate, $minPaybackAmount), 2, ',', '.'),
-        __("Monat", "lnx-cashpresso-woocommerce")
-      );
-
-      wp_enqueue_script('cashpresso-static');
-    }
-  }
-
-  $label = apply_filters('cashpresso-product-integration-label', $label, $product, $isDynamicIntegration);
 
   if (apply_filters('cashpresso-product-integration-label-after-price', true, $product, $isDynamicIntegration)) {
     return $price . $label;
@@ -164,11 +202,18 @@ function cashpresso_label_js() {
     || !is_array($settings)
     || empty($settings['enabled'])
     || $settings['enabled'] !== 'yes'
-    || empty($settings['productLabelLocation'])
-    || empty($settings['productLevel'])
     || is_cart()
     || is_checkout()
     || is_view_order_page()
+  ) {
+    return;
+  }
+
+  // The placement/level settings only apply to classic themes. Block themes hide them, so gating
+  // on them there would skip the script_loader_tag filter and drop the block label's data-c2-* attrs.
+  if (
+    !(function_exists('wp_is_block_theme') && wp_is_block_theme())
+    && (empty($settings['productLabelLocation']) || empty($settings['productLevel']))
   ) {
     return;
   }
@@ -248,12 +293,51 @@ function cashpresso_plugin_init() {
 
   add_filter('woocommerce_payment_gateways', 'cashpresso_register_gateway');
   add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'cashpresso_gateway_plugin_links');
-  add_filter('woocommerce_get_price_html', 'cashpresso_product_level_integration', 10, 2);
-  add_action('wp_head', 'cashpresso_label_js');
+
+  // Hook-based placement is classic-theme only; block themes use the product-label block.
+  add_action('wp', function () {
+    if (function_exists('wp_is_block_theme') && wp_is_block_theme()) {
+      return;
+    }
+
+    add_filter('woocommerce_get_price_html', 'cashpresso_product_level_integration', 10, 2);
+  });
+
+  // Runs for both classic and block themes; the block enqueues the same scripts on render.
+  add_action('wp_enqueue_scripts', 'cashpresso_label_js');
 
   load_plugin_textdomain('lnx-cashpresso-woocommerce', false, dirname(plugin_basename(__FILE__)) . '/languages/');
+}
+
+function cashpresso_register_blocks() {
+  if (!class_exists('WooCommerce')) {
+    return;
+  }
+
+  register_block_type(plugin_dir_path(__FILE__) . 'assets/blocks/product-label/');
+}
+
+function cashpresso_register_block_patterns() {
+  if (!class_exists('WooCommerce') || !function_exists('register_block_pattern')) {
+    return;
+  }
+
+  if (function_exists('register_block_pattern_category')) {
+    register_block_pattern_category('cashpresso', [
+      'label' => __('cashpresso', 'lnx-cashpresso-woocommerce'),
+    ]);
+  }
+
+  register_block_pattern('cashpresso/product-label', [
+    'title' => __('cashpresso Finanzierungs-Label', 'lnx-cashpresso-woocommerce'),
+    'description' => __('Platziert das cashpresso Finanzierungs-Label für das aktuelle Produkt.', 'lnx-cashpresso-woocommerce'),
+    'categories' => ['cashpresso'],
+    'content' => '<!-- wp:cashpresso/product-label /-->',
+  ]);
 }
 
 add_action('plugins_loaded', 'cashpresso_plugin_init');
 add_action('plugins_loaded', 'cashpresso_gateway_init', 11);
 add_action('woocommerce_blocks_loaded', 'cashpresso_add_block_support');
+add_action('init', 'cashpresso_register_blocks');
+add_action('init', 'cashpresso_register_block_patterns');

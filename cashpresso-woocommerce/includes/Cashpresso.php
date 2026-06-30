@@ -382,6 +382,12 @@ class Cashpresso extends WC_Payment_Gateway {
       );
     }
 
+    // Block themes place the label via the product-label block, so these settings have no
+    // effect there — hide them.
+    if (function_exists('wp_is_block_theme') && wp_is_block_theme()) {
+      unset($fields['productLabelLocation'], $fields['productLevel']);
+    }
+
     $this->form_fields = $fields;
   }
 

@@ -24,14 +24,22 @@ const defaultConfig = require('@wordpress/scripts/config/webpack.config'),
 module.exports = {
     ...defaultConfig,
     entry: {
-        checkout: './resources/assets/js/checkout.js',
+        'js/checkout': './resources/assets/js/checkout.js',
+        'blocks/product-label/index': './resources/assets/blocks/product-label/index.js',
+        'blocks/product-label/view': './resources/assets/blocks/product-label/view.js',
     },
     output: {
-        path: path.resolve(__dirname, 'cashpresso-woocommerce/assets/js'),
+        path: path.resolve(__dirname, 'cashpresso-woocommerce/assets'),
         filename: '[name].js',
     },
     plugins: [
-        ...defaultConfig.plugins.filter((plugin) => plugin.constructor.name !== 'DependencyExtractionWebpackPlugin'),
+        // Drop CleanWebpackPlugin so the build keeps the hand-maintained files in the
+        // output directory (block.json, render.php, variable.js, …).
+        ...defaultConfig.plugins.filter(
+            (plugin) =>
+                plugin.constructor.name !== 'DependencyExtractionWebpackPlugin' &&
+                plugin.constructor.name !== 'CleanWebpackPlugin',
+        ),
         new WooCommerceDependencyExtractionWebpackPlugin({
             requestToExternal,
             requestToHandle,

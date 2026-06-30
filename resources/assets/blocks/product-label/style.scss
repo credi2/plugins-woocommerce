@@ -1,0 +1,31 @@
+// cashpresso/product-label block styles.
+
+.wp-block-cashpresso-product-label {
+    // Content-width box; alignment is left to the parent container.
+    position: relative;
+    display: inline-block;
+
+    &.is-style-compact {
+        font-size: 0.8em;
+    }
+
+    // Reset the remote stylesheet's relative positioning so the stretched link overlay below
+    // anchors to the block wrapper and covers the full padded (button-styled) area.
+    .c2-ecom-label {
+        position: static;
+    }
+
+    .c2-link::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+    }
+}
+
+// Default "highlight" look. :where() keeps specificity at 0 so block controls override it.
+:where(.wp-block-cashpresso-product-label.is-style-highlight) {
+    padding: 0.25em 0.6em;
+    border: 1px solid currentColor;
+    border-radius: 4px;
+    font-weight: 600;
+}

@@ -112,6 +112,20 @@ class CashpressoBlocksSupport extends AbstractPaymentMethodType
   }
 
   /**
+   * Scripts for the editor preview: only the local integration script, not the external
+   * checkout wizard (it has no purchase context here and logs "amount of 0 is invalid").
+   * The external handle is still registered, just not enqueued.
+   *
+   * @return array
+   */
+  public function get_payment_method_script_handles_for_admin()
+  {
+    $this->get_payment_method_script_handles();
+
+    return ['wc-cashpresso-payments-blocks'];
+  }
+
+  /**
    * Returns an array of key=>value pairs of data made available to the payment methods script.
    *
    * @return array

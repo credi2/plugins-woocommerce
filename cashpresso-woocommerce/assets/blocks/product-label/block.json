@@ -1,0 +1,50 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "cashpresso/product-label",
+    "version": "1.0.0",
+    "title": "cashpresso Finanzierungs-Label",
+    "category": "woocommerce",
+    "icon": "money-alt",
+    "description": "Zeigt das cashpresso Finanzierungs-Label für das aktuelle Produkt an. Die im Editor angezeigte Rate ist ein Beispielwert – die echte Rate wird im Frontend aus Produktpreis und Plugin-Einstellungen berechnet.",
+    "keywords": ["cashpresso", "Ratenkauf", "Finanzierung", "Rate", "financing"],
+    "textdomain": "lnx-cashpresso-woocommerce",
+    "usesContext": ["postId", "postType"],
+    "example": {
+        "viewportWidth": 280
+    },
+    "styles": [
+        { "name": "default", "label": "Standard", "isDefault": true },
+        { "name": "compact", "label": "Kompakt" },
+        { "name": "highlight", "label": "Hervorgehoben" }
+    ],
+    "supports": {
+        "html": false,
+        "multiple": true,
+        "__experimentalBorder": {
+            "color": true,
+            "radius": true,
+            "style": true,
+            "width": true
+        },
+        "color": {
+            "text": true,
+            "background": true,
+            "gradients": true
+        },
+        "spacing": {
+            "margin": true,
+            "padding": true
+        },
+        "typography": {
+            "fontSize": true,
+            "lineHeight": true,
+            "__experimentalFontWeight": true,
+            "__experimentalFontStyle": true
+        }
+    },
+    "render": "file:./render.php",
+    "editorScript": "file:./index.js",
+    "viewScript": "file:./view.js",
+    "style": "file:./style-index.css"
+}
