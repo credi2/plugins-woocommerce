@@ -162,6 +162,10 @@ function cashpresso_product_level_integration($price, $product = null) {
     return $price;
   }
 
+  if (!Cashpresso::isConfiguredSettings($settings)) {
+    return $price;
+  }
+
   if ($settings['productLabelLocation'] == 0) {
     return $price;
   }
@@ -206,6 +210,7 @@ function cashpresso_label_js() {
     || !is_array($settings)
     || empty($settings['enabled'])
     || $settings['enabled'] !== 'yes'
+    || !Cashpresso::isConfiguredSettings($settings)
     || is_cart()
     || is_checkout()
     || is_view_order_page()

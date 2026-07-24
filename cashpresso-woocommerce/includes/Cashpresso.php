@@ -94,7 +94,12 @@ class Cashpresso extends WC_Payment_Gateway {
     return $value;
   }
 
+  // Sanitizing happens inside these hooks, not via a 'sanitize_callback' on the field:
+  // WC_Settings_API::get_field_value() returns a sanitize_callback result immediately,
+  // which would make the validate_{key}_field hooks unreachable.
   public function validate_apikey_field($key, $value) {
+    $value = $this->sanitizeKey((string) $value);
+
     return $this->validateField(
       $key,
       $value,
@@ -104,6 +109,8 @@ class Cashpresso extends WC_Payment_Gateway {
   }
 
   public function validate_secretkey_field($key, $value) {
+    $value = $this->sanitizeKey((string) $value);
+
     return $this->validateField(
       $key,
       $value,
@@ -322,7 +329,6 @@ class Cashpresso extends WC_Payment_Gateway {
         'description' => __('Secret Key', 'lnx-cashpresso-woocommerce'),
         'default' => __('', 'lnx-cashpresso-woocommerce'),
         'desc_tip' => true,
-        'sanitize_callback' => [$this, 'sanitizeKey']
       ),
       'apikey' => array(
         'title' => __('Api Key', 'lnx-cashpresso-woocommerce'),
@@ -330,7 +336,6 @@ class Cashpresso extends WC_Payment_Gateway {
         'description' => __('Api Key', 'lnx-cashpresso-woocommerce'),
         'default' => __('', 'lnx-cashpresso-woocommerce'),
         'desc_tip' => true,
-        'sanitize_callback' => [$this, 'sanitizeKey']
       ),
       'modus' => array(
         'title' => __(__('Modus'), 'lnx-cashpresso-woocommerce'),
@@ -392,7 +397,7 @@ class Cashpresso extends WC_Payment_Gateway {
   }
 
   public function sanitizeKey(string $value): string {
-    return trim(wc_clean($value));
+    return trim(wc_clean(wp_unslash($value)));
   }
 
   public function isTimeForUpdate() {
@@ -428,6 +433,27 @@ class Cashpresso extends WC_Payment_Gateway {
       return "https://rest.cashpresso.com";
     }
     return "https://backend.test-cashpresso.com";
+  }
+
+  // Context-free "credentials are set" truth, shared by checkout availability, the admin
+  // needs-setup signal and every frontend render/echo surface. Kept separate from
+  // is_available(), whose WC contract may evaluate the cart (max_amount) — product and
+  // label surfaces have no cart context and must not couple to it. The static variant
+  // serves the procedural call sites that read the raw settings option.
+  public static function isConfiguredSettings(array $settings): bool {
+    return !empty($settings['apikey']) && !empty($settings['secretkey']);
+  }
+
+  public function isConfigured(): bool {
+    return !empty($this->getApiKey()) && !empty($this->getSecretKey());
+  }
+
+  public function is_available(): bool {
+    return parent::is_available() && $this->isConfigured();
+  }
+
+  public function needs_setup(): bool {
+    return !$this->isConfigured();
   }
 
   public function getInterestFreeDaysMerchant() {
@@ -621,7 +647,7 @@ TAG;
   }
 
   public function wc_cashpresso_checkout_js() {
-    if ($this->enabled !== 'yes' || !is_checkout() || $this->hasCurrentPageCheckoutBlock()) {
+    if ($this->enabled !== 'yes' || !$this->isConfigured() || !is_checkout() || $this->hasCurrentPageCheckoutBlock()) {
       return;
     }
 
@@ -647,7 +673,7 @@ TAG;
   }
 
   public function wc_cashpresso_refresh_js() {
-    if ($this->enabled !== 'yes' || !is_checkout() || $this->hasCurrentPageCheckoutBlock()) {
+    if ($this->enabled !== 'yes' || !$this->isConfigured() || !is_checkout() || $this->hasCurrentPageCheckoutBlock()) {
       return;
     }
 
@@ -708,7 +734,7 @@ TAG;
   }
 
   public function wc_cashpresso_postcheckout_js($orderID) {
-    if ($this->enabled !== 'yes' || empty($orderID)) {
+    if ($this->enabled !== 'yes' || !$this->isConfigured() || empty($orderID)) {
       return;
     }
 
