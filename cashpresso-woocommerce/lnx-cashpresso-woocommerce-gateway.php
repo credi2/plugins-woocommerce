@@ -3,7 +3,7 @@
  * Plugin Name: WooCommerce cashpresso Payment Gateway
  * Plugin URI: https://www.cashpresso.com/de/i/business
  * Description: A payment gateway for cashpresso instalment payments.
- * Version: 1.3.0
+ * Version: 1.4.0
  * Author: Credi2 GmbH | cashpresso
  * Author URI: https://www.cashpresso.com/de/i/business
  * Copyright: © 2025 Credi2 GmbH.
@@ -11,12 +11,16 @@
  * License URI: http://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain: lnx-cashpresso-woocommerce
  * Domain Path: /languages
+ * Requires Plugins: woocommerce
+ * WC requires at least: 8.4
+ * WC tested up to: 10.9
  */
 
 defined('ABSPATH') or exit;
 
 use Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry;
 use Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType;
+use Automattic\WooCommerce\Utilities\FeaturesUtil;
 use Cashpresso\Cashpresso;
 use Cashpresso\CashpressoBlocksSupport;
 
@@ -158,6 +162,10 @@ function cashpresso_product_level_integration($price, $product = null) {
     return $price;
   }
 
+  if (!Cashpresso::isConfiguredSettings($settings)) {
+    return $price;
+  }
+
   if ($settings['productLabelLocation'] == 0) {
     return $price;
   }
@@ -202,6 +210,7 @@ function cashpresso_label_js() {
     || !is_array($settings)
     || empty($settings['enabled'])
     || $settings['enabled'] !== 'yes'
+    || !Cashpresso::isConfiguredSettings($settings)
     || is_cart()
     || is_checkout()
     || is_view_order_page()
@@ -278,6 +287,19 @@ function cashpresso_add_block_support() {
   }
 }
 
+/**
+ * Declare compatibility with the WC features that track per-plugin compatibility:
+ * HPOS (orders are read and written exclusively through the WC CRUD API) and the
+ * cart/checkout blocks (native integration via CashpressoBlocksSupport). The guard
+ * covers WooCommerce < 6.5, where FeaturesUtil does not exist yet.
+ */
+function cashpresso_declare_wc_feature_compatibility() {
+  if (class_exists(FeaturesUtil::class)) {
+    FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
+    FeaturesUtil::declare_compatibility('cart_checkout_blocks', __FILE__, true);
+  }
+}
+
 function cashpresso_plugin_init() {
   // Make sure WooCommerce is active
   if (!class_exists('WooCommerce')) {
@@ -338,6 +360,7 @@ function cashpresso_register_block_patterns() {
 
 add_action('plugins_loaded', 'cashpresso_plugin_init');
 add_action('plugins_loaded', 'cashpresso_gateway_init', 11);
+add_action('before_woocommerce_init', 'cashpresso_declare_wc_feature_compatibility');
 add_action('woocommerce_blocks_loaded', 'cashpresso_add_block_support');
 add_action('init', 'cashpresso_register_blocks');
 add_action('init', 'cashpresso_register_block_patterns');

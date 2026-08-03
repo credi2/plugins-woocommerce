@@ -9,6 +9,8 @@
 
 defined('ABSPATH') or exit;
 
+use Cashpresso\Cashpresso;
+
 // wc_get_product() guards against a saved block rendering while WooCommerce is inactive.
 if (!function_exists('wc_get_product') || !function_exists('cashpresso_get_product_price_value')) {
     return;
@@ -33,6 +35,10 @@ if (empty($settings) || !is_array($settings)) {
 }
 
 if (empty($settings['enabled']) || $settings['enabled'] !== 'yes') {
+    return;
+}
+
+if (!Cashpresso::isConfiguredSettings($settings)) {
     return;
 }
 
