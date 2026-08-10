@@ -289,9 +289,8 @@ function cashpresso_add_block_support() {
 
 /**
  * Declare compatibility with the WC features that track per-plugin compatibility:
- * HPOS (orders are read and written exclusively through the WC CRUD API) and the
- * cart/checkout blocks (native integration via CashpressoBlocksSupport). The guard
- * covers WooCommerce < 6.5, where FeaturesUtil does not exist yet.
+ * HPOS (custom_order_tables) and the Cart/Checkout blocks (cart_checkout_blocks).
+ * Guarded for environments where WooCommerce's FeaturesUtil class is unavailable.
  */
 function cashpresso_declare_wc_feature_compatibility() {
   if (class_exists(FeaturesUtil::class)) {
